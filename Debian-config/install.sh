@@ -65,7 +65,7 @@ chmod a+x /usr/local/bin/umount-menu.sh
 sh <(curl -sSf https://downloads.nordcdn.com/apps/linux/install.sh) -y
 
 #nvidia drivers & cuda
-bash scripts/nvidia-cuda
+#bash scripts/nvidia-cuda
 
 #docker
 bash scripts/docker
