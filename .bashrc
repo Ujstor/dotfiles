@@ -711,9 +711,12 @@ fi
 export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"
 complete -C /usr/bin/terraform terraform
 
-eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+#eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 
 export PATH="$PATH:/opt/nvim-linux64/bin"
+if [ -f "/home/ujstor/.use-nala" ]; then
+        . "/home/ujstor/.use-nala"
+fi
 if [ -f "/home/ujstor/.use-nala" ]; then
         . "/home/ujstor/.use-nala"
 fi

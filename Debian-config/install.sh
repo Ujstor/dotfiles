@@ -19,12 +19,13 @@ apt install nala -y
 # Making .config and Moving config files and background to Pictures
 cd $builddir
 mkdir -p /home/$username/.config
+mkdir -p /home/$username/.fonts
 chown -R $username:$username /home/$username
 
 # Installing Essential Programs 
 nala install feh  alacritty tmux rofi picom thunar nitrogen lxpolkit x11-xserver-utils unzip wget pipewire wireplumber pulseaudio pavucontrol build-essential libx11-dev libxft-dev libxinerama-dev libx11-xcb-dev libxcb-res0-dev zoxide -y
 # Installing Other less important Programs
-nala install neofetch flameshot psmisc mangohud vim lxappearance papirus-icon-theme lxappearance fonts-noto-color-emoji gdu htop timeshift tldr git trash-cli autojump curl fzf -y
+nala install neofetch flameshot psmisc mangohud vim lxappearance papirus-icon-theme lxappearance fonts-noto-color-emoji gdu htop timeshift tldr git trash-cli autojump curl fzf bat -y
 
 # Enable wireplumber audio service
 sudo -u $username systemctl --user enable wireplumber.service
@@ -32,6 +33,19 @@ sudo -u $username systemctl --user enable wireplumber.service
 # Download Nordic Theme
 cd /usr/share/themes/
 git clone https://github.com/EliverLara/Nordic.git
+
+
+# Installing fonts
+cd $builddir 
+nala install fonts-font-awesome -y
+wget https://github.com/ryanoasis/nerd-fonts/releases/download/v2.1.0/FiraCode.zip
+unzip FiraCode.zip -d /home/$username/.fonts
+wget https://github.com/ryanoasis/nerd-fonts/releases/download/v2.1.0/Meslo.zip
+unzip Meslo.zip -d /home/$username/.fonts
+wget https://github.com/ryanoasis/nerd-fonts/releases/download/v3.1.1/JetBrainsMono.zip
+unzip JetBrainsMono.zip -d /home/$username/.fonts
+mv dotfonts/fontawesome/otfs/*.otf /home/$username/.fonts/
+chown $username:$username /home/$username/.fonts/*
 
 # Reloading Font
 fc-cache -vf

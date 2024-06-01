@@ -1,2 +1,3 @@
-2024/06/01-08:28:44.538 52c Creating DB /home/ujstor/.config/BraveSoftware/Brave-Browser/Default/Sync Data/LevelDB since it was missing.
-2024/06/01-08:28:44.614 52c Reusing MANIFEST /home/ujstor/.config/BraveSoftware/Brave-Browser/Default/Sync Data/LevelDB/MANIFEST-000001
+2024/06/01-19:29:48.353 3a61 Reusing MANIFEST /home/ujstor/.config/BraveSoftware/Brave-Browser/Default/Sync Data/LevelDB/MANIFEST-000001
+2024/06/01-19:29:48.354 3a61 Recovering log #3
+2024/06/01-19:29:48.354 3a61 Reusing old log /home/ujstor/.config/BraveSoftware/Brave-Browser/Default/Sync Data/LevelDB/000003.log 
