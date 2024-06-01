@@ -1,0 +1,10 @@
+#!/bin/bash
+
+download_dir="$HOME/Downloads"
+go_version="go1.22.0"
+go_url="https://golang.org/dl/${go_version}.linux-amd64.tar.gz"
+
+wget -P "$download_dir" "$go_url"
+sudo tar -C /usr/local -xzf "${download_dir}/${go_version}.linux-amd64.tar.gz"
+mkdir $HOME/go
+export PATH=$PATH:/usr/local/go/bin

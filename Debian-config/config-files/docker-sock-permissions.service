@@ -1,0 +1,10 @@
+[Unit]
+Description=Set Docker socket permissions
+After=network.target
+
+[Service]
+Type=oneshot
+ExecStart=/bin/chmod 666 /var/run/docker.sock
+
+[Install]
+WantedBy=multi-user.target
