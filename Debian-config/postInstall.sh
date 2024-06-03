@@ -10,6 +10,6 @@ bash scripts/tmuxSetup
 bash scripts/nvim
 
 bash scripts/hcloud_k9s
-bash script/vscode-gh
+bash scripts/gh
 
-
+pip install ansible

@@ -24,7 +24,9 @@ chown -R $username:$username /home/$username
 # Installing Essential Programs 
 nala install feh kitty tmux rofi picom thunar nitrogen lxpolkit x11-xserver-utils unzip wget pipewire wireplumber pavucontrol build-essential libx11-dev libxft-dev libxinerama-dev libx11-xcb-dev libxcb-res0-dev zoxide xdg-utils -y
 # Installing Other less important Programs
-nala install neofetch flameshot psmisc mangohud vim lxappearance papirus-icon-theme lxappearance fonts-noto-color-emoji gdu htop timeshift tldr git trash-cli autojump curl fzf bat -y
+nala install neofetch flameshot psmisc mangohud vim lxappearance papirus-icon-theme lxappearance fonts-noto-color-emoji gdu htop timeshift tldr git trash-cli autojump curl fzf bat python3-pip npm -y
+
+sudo mv /usr/lib/python3.11/EXTERNALLY-MANAGED /usr/lib/python3.11/EXTERNALLY-MANAGED.old
 
 # Download Nordic Theme
 cd /usr/share/themes/
@@ -78,12 +80,12 @@ sh <(curl -sSf https://downloads.nordcdn.com/apps/linux/install.sh) -y
 #bash scripts/nvidia-cuda
 
 # DWM Setup
-#cd ..
-#cd dwm
-#bash setup.sh
-#make clean install
-#cp dwm.desktop /usr/share/xsessions
-#cd $builddir
+cd ..
+cd dwm
+bash setup.sh
+make clean install
+cp dwm.desktop /usr/share/xsessions
+cd $builddir
 
 # Use nala
 bash scripts/usenala
