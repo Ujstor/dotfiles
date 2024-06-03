@@ -22,7 +22,7 @@ mkdir -p /home/$username/.fonts
 chown -R $username:$username /home/$username
 
 # Installing Essential Programs 
-nala install feh kitty tmux rofi picom thunar nitrogen lxpolkit x11-xserver-utils unzip wget pulseaudio pavucontrol build-essential libx11-dev libxft-dev libxinerama-dev libx11-xcb-dev libxcb-res0-dev zoxide -y
+nala install feh kitty tmux rofi picom thunar nitrogen lxpolkit x11-xserver-utils unzip wget pipewire wireplumber pavucontrol build-essential libx11-dev libxft-dev libxinerama-dev libx11-xcb-dev libxcb-res0-dev zoxide xdg-utils -y
 # Installing Other less important Programs
 nala install neofetch flameshot psmisc mangohud vim lxappearance papirus-icon-theme lxappearance fonts-noto-color-emoji gdu htop timeshift tldr git trash-cli autojump curl fzf bat -y
 
@@ -56,11 +56,11 @@ cd Nordzy-cursors
 ./install.sh
 cd $builddir
 rm -rf Nordzy-cursors
+
 # Beautiful bash
 sudo bash scripts/bashSetup
 
-#scripts
-bash scripts/go
+script scripts/go
 bash scripts/brave
 
 #mount scripts
@@ -74,9 +74,6 @@ sh <(curl -sSf https://downloads.nordcdn.com/apps/linux/install.sh) -y
 
 #nvidia drivers & cuda
 #bash scripts/nvidia-cuda
-
-#docker
-bash scripts/docker
 
 # DWM Setup
 #cd ..

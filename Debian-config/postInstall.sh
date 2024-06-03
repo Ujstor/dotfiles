@@ -9,6 +9,8 @@ fi
 bash scripts/tmuxSetup
 bash scripts/nvim
 
+#docker
+bash scripts/docker
 #k8s
 bash scripts/kubernetes
 
