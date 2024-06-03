@@ -18,12 +18,11 @@ apt install nala -y
 
 # Making .config and Moving config files and background to Pictures
 cd $builddir
-mkdir -p /home/$username/.config
 mkdir -p /home/$username/.fonts
 chown -R $username:$username /home/$username
 
 # Installing Essential Programs 
-nala install feh  alacritty tmux rofi picom thunar nitrogen lxpolkit x11-xserver-utils unzip wget pipewire wireplumber pulseaudio pavucontrol build-essential libx11-dev libxft-dev libxinerama-dev libx11-xcb-dev libxcb-res0-dev zoxide -y
+nala install feh  alacritty kitty tmux rofi picom thunar nitrogen lxpolkit x11-xserver-utils unzip wget pipewire wireplumber pulseaudio pavucontrol build-essential libx11-dev libxft-dev libxinerama-dev libx11-xcb-dev libxcb-res0-dev zoxide -y
 # Installing Other less important Programs
 nala install neofetch flameshot psmisc mangohud vim lxappearance papirus-icon-theme lxappearance fonts-noto-color-emoji gdu htop timeshift tldr git trash-cli autojump curl fzf bat -y
 
@@ -58,14 +57,13 @@ cd $builddir
 rm -rf Nordzy-cursors
 
 # Beautiful bash
-sudo bash scripts/bashSetup.sh
+sudo bash scripts/bashSetup
 
 # Tmux & Nvim
-bash scripts/tmuxSetup.sh
-bash scripts/nvim.sh
+bash scripts/tmuxSetup
+bash scripts/nvim
 
 #scripts
-bash scripts/vscode-gh
 bash scripts/go
 bash scripts/brave
 
@@ -91,12 +89,12 @@ systemctl enable docker-sock-permissions.service
 bash scripts/kubernetes
 
 # DWM Setup
-cd ..
-cd dwm
-bash setup.sh
-make clean install
-cp dwm.desktop /usr/share/xsessions
-cd $builddir
+#cd ..
+#cd dwm
+#bash setup.sh
+#make clean install
+#cp dwm.desktop /usr/share/xsessions
+#cd $builddir
 
 # Use nala
 bash scripts/usenala

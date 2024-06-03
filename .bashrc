@@ -55,7 +55,6 @@ alias pico='edit'
 alias spico='sedit'
 alias nano='edit'
 alias snano='sedit'
-alias vim='nvim'
 
 # Replace batcat with cat on Fedora as batcat is not available as a RPM in any form
 if command -v lsb_release > /dev/null; then
@@ -714,6 +713,9 @@ complete -C /usr/bin/terraform terraform
 #eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 
 export PATH="$PATH:/opt/nvim-linux64/bin"
+if [ -f "/home/ujstor/.use-nala" ]; then
+        . "/home/ujstor/.use-nala"
+fi
 if [ -f "/home/ujstor/.use-nala" ]; then
         . "/home/ujstor/.use-nala"
 fi

@@ -1,0 +1,19 @@
+#!/bin/bash
+
+if ! command -v tmux &> /dev/null
+then
+    sudo apt update
+    sudo apt install tmux -y
+    echo "tmux installed successfully."
+else
+    echo "tmux is already installed."
+fi
+
+if [ -d ~/.tmux/plugins/tpm ]; then
+    rm -rf ~/.tmux/plugins/tpm
+fi
+
+git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
+
+echo "Tmux setup complete."
+echo "Install plugins with leter+I"
