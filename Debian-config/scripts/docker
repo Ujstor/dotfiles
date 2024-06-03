@@ -23,9 +23,7 @@ curl -s -L https://nvidia.github.io/libnvidia-container/stable/deb/nvidia-contai
 sudo apt-get update
 sudo apt-get install -y nvidia-container-runtime
 
-#sudo docker login
-sudo groupadd docker
-sudo usermod -aG docker $USER
+cp config-files/docker-sock-permissions.service /etc/systemd/system/
 
 DOCKER_CONFIG_DIR="/home/$USER/.docker"
 sudo mkdir -p $DOCKER_CONFIG_DIR
@@ -36,3 +34,5 @@ sudo systemctl enable docker.service
 sudo systemctl enable containerd.service
 sleep 5
 sudo chmod 666 /var/run/docker.sock
+systemctl daemon-reloajj
+systemctl enable docker-sock-permissions.service
