@@ -9,8 +9,7 @@ fi
 bash scripts/tmuxSetup
 bash scripts/nvim
 
-#docker
-bash scripts/docker
-#k8s
-bash scripts/kubernetes
+bash scripts/hcloud_k9s
+bash script/vscode-gh
+
 

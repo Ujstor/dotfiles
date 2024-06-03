@@ -1,0 +1,12 @@
+#!/bin/bash
+
+# Hcloud
+if ! command -v go &> /dev/null; then
+  echo "Go is not installed. Please install Go and run this script again."
+  exit 1
+fi
+go install github.com/hetznercloud/cli/cmd/hcloud@latest
+
+# k9s
+go install github.com/derailed/k9s@latest
+

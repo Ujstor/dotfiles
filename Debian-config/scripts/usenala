@@ -1,4 +1,5 @@
 #!/bin/bash
+
 username=$(id -u -n 1000)
 # Configure bash to use nala wrapper instead of apt
 usenala="/home/$username/.use-nala"

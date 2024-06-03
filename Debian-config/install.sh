@@ -26,9 +26,6 @@ nala install feh kitty tmux rofi picom thunar nitrogen lxpolkit x11-xserver-util
 # Installing Other less important Programs
 nala install neofetch flameshot psmisc mangohud vim lxappearance papirus-icon-theme lxappearance fonts-noto-color-emoji gdu htop timeshift tldr git trash-cli autojump curl fzf bat -y
 
-# Enable wireplumber audio service
-sudo -u $username systemctl --user enable wireplumber.service
-
 # Download Nordic Theme
 cd /usr/share/themes/
 git clone https://github.com/EliverLara/Nordic.git
@@ -60,8 +57,13 @@ rm -rf Nordzy-cursors
 # Beautiful bash
 sudo bash scripts/bashSetup
 
-script scripts/go
+bash scripts/go
 bash scripts/brave
+
+#docke
+bash scripts/docker
+#k8s
+bash scripts/kubernetes
 
 #mount scripts
 cp scripts/mount-menu.sh /usr/local/bin
@@ -85,3 +87,5 @@ sh <(curl -sSf https://downloads.nordcdn.com/apps/linux/install.sh) -y
 
 # Use nala
 bash scripts/usenala
+
+source ~/.bashrc

@@ -19,16 +19,6 @@ echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.
 sudo apt-get update
 sudo apt-get install -y kubectl
 
-# Hcloud
-if ! command -v go &> /dev/null; then
-  echo "Go is not installed. Please install Go and run this script again."
-  exit 1
-fi
-go install github.com/hetznercloud/cli/cmd/hcloud@latest
-
-# k9s
-go install github.com/derailed/k9s@latest
-
 # kind
 if [ "$(uname -m)" = "x86_64" ]; then
   curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.20.0/kind-linux-amd64
