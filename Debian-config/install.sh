@@ -13,54 +13,21 @@ builddir=$(pwd)
 apt update
 apt upgrade -y
 
-# Install nala
-apt install nala -y
-
 # Making .config and Moving config files and background to Pictures
 cd $builddir
-mkdir -p /home/$username/.fonts
 chown -R $username:$username /home/$username
 
 # Installing Essential Programs 
-nala install feh kitty tmux rofi picom thunar nitrogen lxpolkit x11-xserver-utils unzip wget pipewire wireplumber pavucontrol build-essential libx11-dev libxft-dev libxinerama-dev libx11-xcb-dev libxcb-res0-dev zoxide xdg-utils -y
+apt install feh tmux lxpolkit unzip wget build-essential libx11-dev libxft-dev libxinerama-dev libx11-xcb-dev libxcb-res0-dev zoxide xdg-utils -y
 # Installing Other less important Programs
 nala install neofetch flameshot psmisc mangohud vim lxappearance papirus-icon-theme lxappearance fonts-noto-color-emoji gdu htop timeshift tldr git trash-cli autojump curl fzf bat python3-pip npm -y
 
 sudo mv /usr/lib/python3.11/EXTERNALLY-MANAGED /usr/lib/python3.11/EXTERNALLY-MANAGED.old
 
-# Download Nordic Theme
-cd /usr/share/themes/
-git clone https://github.com/EliverLara/Nordic.git
-
-
-# Installing fonts
-cd $builddir 
-nala install fonts-font-awesome -y
-wget https://github.com/ryanoasis/nerd-fonts/releases/download/v2.1.0/FiraCode.zip
-unzip FiraCode.zip -d /home/$username/.fonts
-wget https://github.com/ryanoasis/nerd-fonts/releases/download/v2.1.0/Meslo.zip
-unzip Meslo.zip -d /home/$username/.fonts
-wget https://github.com/ryanoasis/nerd-fonts/releases/download/v3.1.1/JetBrainsMono.zip
-unzip JetBrainsMono.zip -d /home/$username/.fonts
-mv dotfonts/fontawesome/otfs/*.otf /home/$username/.fonts/
-chown $username:$username /home/$username/.fonts/*
-
-# Reloading Font
-fc-cache -vf
-rm ./FiraCode.zip ./Meslo.zip ./JetBrainsMono.zip
-
-# Install Nordzy cursor
-git clone https://github.com/alvatip/Nordzy-cursors
-cd Nordzy-cursors
-./install.sh
-cd $builddir
-rm -rf Nordzy-cursors
-
 # Beautiful bash
 sudo bash scripts/bashSetup
 
 bash scripts/go
-bash scripts/brave
 
 #docke
 bash scripts/docker
@@ -72,22 +39,5 @@ cp scripts/mount-menu.sh /usr/local/bin
 chmod a+x /usr/local/bin/mount-menu.sh
 cp scripts/umount-menu.sh /usr/local/bin
 chmod a+x /usr/local/bin/umount-menu.sh
-
-#nordvpn
-sh <(curl -sSf https://downloads.nordcdn.com/apps/linux/install.sh) -y
-
-#nvidia drivers & cuda
-#bash scripts/nvidia-cuda
-
-# DWM Setup
-cd ..
-cd dwm
-bash setup.sh
-make clean install
-cp dwm.desktop /usr/share/xsessions
-cd $builddir
-
-# Use nala
-bash scripts/usenala
 
 source ~/.bashrc
