@@ -18,9 +18,9 @@ cd $builddir
 chown -R $username:$username /home/$username
 
 # Installing Essential Programs 
-apt install feh tmux lxpolkit unzip wget build-essential libx11-dev libxft-dev libxinerama-dev libx11-xcb-dev libxcb-res0-dev zoxide xdg-utils -y
+apt install tmux lxpolkit unzip wget build-essential zoxide -y
 # Installing Other less important Programs
-nala install neofetch flameshot psmisc mangohud vim lxappearance papirus-icon-theme lxappearance fonts-noto-color-emoji gdu htop timeshift tldr git trash-cli autojump curl fzf bat python3-pip npm -y
+apt install neofetch psmisc vim gdu htop timeshift tldr git trash-cli autojump curl fzf bat python3-pip npm -y
 
 sudo mv /usr/lib/python3.11/EXTERNALLY-MANAGED /usr/lib/python3.11/EXTERNALLY-MANAGED.old
 
