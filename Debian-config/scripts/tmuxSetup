@@ -2,8 +2,8 @@
 
 if ! command -v tmux &> /dev/null
 then
-    sudo apt update
-    sudo apt install tmux -y
+    sudo nala update
+    sudo nala install tmux -y
     echo "tmux installed successfully."
 else
     echo "tmux is already installed."
