@@ -88,6 +88,4 @@ cp dwm.desktop /usr/share/xsessions
 cd $builddir
 
 # Use nala
-bash scripts/usenala
-
-source ~/.bashrc
+# bash scripts/usenala

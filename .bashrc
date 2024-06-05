@@ -1,4 +1,3 @@
-
 iatest=$(expr index "$-" i)
 
 #######################################################
@@ -227,42 +226,12 @@ alias ports='ss -tulpn'
 #moniteroff
 alias monitoroff='xset dpms force off'
 
-
 # KITTY - alias to be able to use kitty features when connecting to remote servers(e.g use tmux on remote server)
-
 alias kssh="kitty +kitten ssh"
 
 #######################################################
 # SPECIAL FUNCTIONS
 #######################################################
-
-# Use the best version of pico installed
-edit ()
-{
-	if [ "$(type -t jpico)" = "file" ]; then
-		# Use JOE text editor http://joe-editor.sourceforge.net/
-		jpico -nonotice -linums -nobackups "$@"
-	elif [ "$(type -t nano)" = "file" ]; then
-		nano -c "$@"
-	elif [ "$(type -t pico)" = "file" ]; then
-		pico "$@"
-	else
-		nvim "$@"
-	fi
-}
-sedit ()
-{
-	if [ "$(type -t jpico)" = "file" ]; then
-		# Use JOE text editor http://joe-editor.sourceforge.net/
-		sudo jpico -nonotice -linums -nobackups "$@"
-	elif [ "$(type -t nano)" = "file" ]; then
-		sudo nano -c "$@"
-	elif [ "$(type -t pico)" = "file" ]; then
-		sudo pico "$@"
-	else
-		sudo nvim "$@"
-	fi
-}
 
 # Extracts any archive(s) (if unp isn't installed)
 extract () {
@@ -607,17 +576,6 @@ trim()
 	var="${var%"${var##*[![:space:]]}"}"  # remove trailing whitespace characters
 	echo -n "$var"
 }
-# GitHub Titus Additions
-
-gcom() {
-	git add .
-	git commit -m "$1"
-	}
-lazyg() {
-	git add .
-	git commit -m "$1"
-	git push
-}
 _z_cd() {
     cd "$@" || return "$?"
 
@@ -671,6 +629,7 @@ case "$PROMPT_COMMAND" in
     *) PROMPT_COMMAND="_zoxide_hook${PROMPT_COMMAND:+;${PROMPT_COMMAND}}" ;;
 esac
 alias lookingglass="~/looking-glass-B5.0.1/client/build/looking-glass-client -F"
+
 #######################################################
 # Set the ultimate amazing command prompt
 #######################################################
@@ -698,27 +657,13 @@ else
 	echo "can't found the autojump script"
 fi
 
-
-if [ -f "/root/.use-nala" ]; then
-        . "/root/.use-nala"
-fi
-
-if [ -f "/home/ujstor/.use-nala" ]; then
-        . "/home/ujstor/.use-nala"
-fi
-
 export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"
 complete -C /usr/bin/terraform terraform
 
 #eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 
 export PATH="$PATH:/opt/nvim-linux64/bin"
-if [ -f "/home/ujstor/.use-nala" ]; then
-        . "/home/ujstor/.use-nala"
-fi
-if [ -f "/home/ujstor/.use-nala" ]; then
-        . "/home/ujstor/.use-nala"
-fi
+
 if [ -f "/home/ujstor/.use-nala" ]; then
         . "/home/ujstor/.use-nala"
 fi
