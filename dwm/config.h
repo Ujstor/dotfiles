@@ -13,7 +13,10 @@ static const int systraypinningfailfirst  = 1;      /* 1: if pinning fails, disp
 static const int showsystray              = 1;      /* 0 means no systray */
 static const int showbar                  = 1;      /* 0 means no bar */
 static const int topbar                   = 1;      /* 0 means bottom bar */
-static const char *fonts[]                = { "MesloLGS Nerd Font Mono:size=15", "NotoColorEmoji:pixelsize=15:antialias=true:autohint=true"  };
+#define ICONSIZE                            17      /* icon size */
+#define ICONSPACING                         5       /* space between icon and title */
+#define SHOWWINICON                         1       /* 0 means no winicon */
+static const char *fonts[]                = { "MesloLGS Nerd Font Mono:size=16", "NotoColorEmoji:pixelsize=16:antialias=true:autohint=true"  };
 static const char normbordercolor[]       = "#3B4252";
 static const char normbgcolor[]           = "#2E3440";
 static const char normfgcolor[]           = "#D8DEE9";
@@ -55,9 +58,9 @@ static const Rule rules[] = {
 	 *	WM_NAME(STRING) = title
 	 */
 	/* class     instance  title           tags mask  isfloating  isterminal  noswallow  monitor */
-	{ "St",		NULL,     NULL,           0,         0,          1,           0,        -1 },
-	{ "alacritty",  NULL,     NULL,           0,         0,          1,           0,        -1 },
-	{ NULL,		NULL,     "Event Tester", 0,         0,          0,           1,        -1 }, /* xev */
+	{ "St",      NULL,     NULL,           0,         0,          1,           0,        -1 },
+	{ "kitty",   NULL,     NULL,           0,         0,          1,           0,        -1 },
+	{ NULL,      NULL,     "Event Tester", 0,         0,          0,           1,        -1 }, /* xev */
 };
 
 /* layout(s) */
@@ -86,18 +89,19 @@ static const Layout layouts[] = {
 #define STATUSBAR "dwmblocks"
 /* commands */
 static const char *launchercmd[] = { "rofi", "-show", "drun", NULL };
-static const char *termcmd[]  = { "alacritty", NULL };
+static const char *termcmd[]  = { "kitty", NULL };
 
 static Key keys[] = {
 	/* modifier                     key            function                argument */
 	{ MODKEY,                       XK_r,          spawn,                  {.v = launchercmd} },
+	{ MODKEY|ControlMask,           XK_r,          spawn,                  SHCMD ("protonrestart")},
 	{ MODKEY,                       XK_x,          spawn,                  {.v = termcmd } },
 	{ MODKEY,                       XK_b,          spawn,                  SHCMD ("brave-browser")},
 	{ MODKEY,                       XK_c,          spawn,                  SHCMD ("discord")},
 	{ MODKEY,                       XK_v,          spawn,                  SHCMD ("virt-manager")},
 	{ MODKEY|ShiftMask,             XK_v,          spawn,                  SHCMD ("chia-blockchain")},
-	{ MODKEY,                       XK_p,          spawn,                  SHCMD ("flameshot full")},
-	{ MODKEY|ShiftMask,             XK_p,          spawn,                  SHCMD ("flameshot gui")},
+	{ MODKEY,                       XK_p,          spawn,                  SHCMD ("flameshot full -p /media/drive/Screenshots/")},
+	{ MODKEY|ShiftMask,             XK_p,          spawn,                  SHCMD ("flameshot gui -p /media/drive/Screenshots/")},
 	{ MODKEY|ControlMask,           XK_p,          spawn,                  SHCMD ("flameshot gui --clipboard")},
 	{ MODKEY,                       XK_e,          spawn,                  SHCMD ("thunar")},
 	{ 0,                            0x1008ff02,    spawn,                  SHCMD ("xbacklight -inc 10")},
@@ -110,6 +114,8 @@ static Key keys[] = {
 	{ MODKEY|ShiftMask,             XK_b,          togglebar,              {0} },
 	{ MODKEY,                       XK_j,          focusstack,             {.i = +1 } },
 	{ MODKEY,                       XK_k,          focusstack,             {.i = -1 } },
+	{ MODKEY|ShiftMask,             XK_j,          movestack,              {.i = +1 } },
+	{ MODKEY|ShiftMask,             XK_k,          movestack,              {.i = -1 } },
 	{ MODKEY,                       XK_i,          incnmaster,             {.i = +1 } },
 	{ MODKEY,                       XK_d,          incnmaster,             {.i = -1 } },
 	{ MODKEY,                       XK_h,          setmfact,               {.f = -0.05} },
@@ -137,9 +143,6 @@ static Key keys[] = {
 	TAGKEYS(                        XK_3,                                  2)
 	TAGKEYS(                        XK_4,                                  3)
 	TAGKEYS(                        XK_5,                                  4)
-	TAGKEYS(                        XK_6,                                  5)
-	TAGKEYS(                        XK_7,                                  6)
-	TAGKEYS(                        XK_8,                                  7)
 	{ MODKEY|ShiftMask,             XK_q,          quit,                   {0} },
 	{ MODKEY|ControlMask|ShiftMask, XK_r,          spawn,                  SHCMD("systemctl reboot")},
 	{ MODKEY|ControlMask|ShiftMask, XK_s,          spawn,                  SHCMD("systemctl suspend")},
