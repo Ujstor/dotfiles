@@ -1,0 +1,20 @@
+[anonymousUsageTracking]
+disable = false
+
+[model.completion.local]
+model_id = "DeepseekCoder-6.7B"
+
+[model.chat.local]
+model_id = "CodeQwen-7B-Chat"
+
+[[repositories]]
+name = "aws-lambda-static-webiste"
+git_url = "https://github.com/Ujstor/aws-lambda-static-website.git"
+
+[[repositories]]
+name = "aws-terraform"
+git_url = "https://github.com/Ujstor/aws-terraform.git"
+
+[[repositories]]
+name = "k8s-infra"
+git_url = "https://github.com/Ujstor/k8s-infra.git"

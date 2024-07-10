@@ -1,0 +1,17 @@
+[Unit]
+Description=TabbyML Docker Service
+After=network.target docker.service
+Requires=docker.service
+
+[Service]
+Restart=always
+RestartSec=10
+ExecStartPre=-/usr/bin/docker stop tabby
+ExecStartPre=-/usr/bin/docker rm tabby
+ExecStart=/usr/bin/docker run --name tabby --gpus all -p 8080:8080 -v /home/ujstor/.tabby:/data tabbyml/tabby serve --model DeepseekCoder-6.7B --chat-model CodeQwen-7B-Chat --device cuda
+ExecStop=/usr/bin/docker stop tabby
+ExecStopPost=/usr/bin/docker rm tabby
+
+[Install]
+WantedBy=multi-user.target
+

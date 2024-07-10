@@ -667,3 +667,43 @@ export PATH="$PATH:/opt/nvim-linux64/bin"
 if [ -f "/home/ujstor/.use-nala" ]; then
         . "/home/ujstor/.use-nala"
 fi
+
+# sst
+export PATH=/home/ujstor/.sst/bin:$PATH
+
+# add Pulumi to the PATH
+export PATH=$PATH:/home/ujstor/.pulumi/bin
+
+source <(kubectl completion bash)
+alias k='kubectl'
+complete -F __start_kubectl k
+
+alias docker-clean=' \
+  docker container prune -f ; \
+  docker image prune -f ; \
+  docker network prune -f ; \
+  docker volume prune -f '
+
+install_nvme_cli() {
+    if ! command -v nvme &> /dev/null; then
+        echo "nvme-cli not found, installing..."
+        if [[ -f /etc/debian_version ]]; then
+            sudo apt-get update && sudo apt-get install -y nvme-cli
+        elif [[ -f /etc/redhat-release ]]; then
+            sudo yum install -y nvme-cli
+        elif [[ -f /etc/arch-release ]]; then
+            sudo pacman -Syu --noconfirm nvme-cli
+        else
+            echo "Unsupported OS. Please install nvme-cli manually."
+            return 1
+        fi
+    fi
+}
+
+check_nvme_temps() {
+    for dev in /dev/nvme[0-9]n[0-9]; do
+        echo "$dev: $(sudo nvme smart-log $dev | grep -i temperature)"
+    done
+}
+
+alias nvmetemp='check_nvme_temps'
