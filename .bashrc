@@ -707,3 +707,8 @@ check_nvme_temps() {
 }
 
 alias nvmetemp='check_nvme_temps'
+alias c='clear'
+alias tf='terraform'
+
+source <(k3d completion bash)
+source <(go-blueprint completion bash)
