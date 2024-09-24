@@ -8,13 +8,257 @@ model_id = "DeepseekCoder-6.7B"
 model_id = "CodeQwen-7B-Chat"
 
 [[repositories]]
-name = "aws-lambda-static-webiste"
-git_url = "https://github.com/Ujstor/aws-lambda-static-website.git"
+name = "dotfiles"
+git_url = "https://github.com/Ujstor/dotfiles"
 
 [[repositories]]
-name = "aws-terraform"
-git_url = "https://github.com/Ujstor/aws-terraform.git"
+name = "dwm"
+git_url = "https://github.com/Ujstor/dwm"
+
+[[repositories]]
+name = "mybash"
+git_url = "https://github.com/Ujstor/mybash"
+
+[[repositories]]
+name = "nvim-config"
+git_url = "https://github.com/Ujstor/nvim-config"
+
+[[repositories]]
+name = "tmux-config"
+git_url = "https://github.com/Ujstor/tmux-config"
+
+[[repositories]]
+name = "terraform-provider-coolify"
+git_url = "https://github.com/Ujstor/terraform-provider-coolify"
+
+[[repositories]]
+name = "terraform-provider-routeros"
+git_url = "https://github.com/Ujstor/terraform-provider-routeros"
+
+[[repositories]]
+name = "k3s_test_cluster"
+git_url = "https://github.com/Ujstor/k3s_test_cluster"
+
+[[repositories]]
+name = "go-blueprint"
+git_url = "https://github.com/Ujstor/go-blueprint"
+
+[[repositories]]
+name = "self-hosting-infrastructure-cluster"
+git_url = "https://github.com/Ujstor/self-hosting-infrastructure-cluster"
 
 [[repositories]]
 name = "k8s-infra"
-git_url = "https://github.com/Ujstor/k8s-infra.git"
+git_url = "https://github.com/Ujstor/k8s-infra"
+
+[[repositories]]
+name = "aws-lambda-static-website"
+git_url = "https://github.com/Ujstor/aws-lambda-static-website"
+
+[[repositories]]
+name = "aws-terraform"
+git_url = "https://github.com/Ujstor/aws-terraform"
+
+[[repositories]]
+name = "portfolio-web"
+git_url = "https://github.com/Ujstor/portfolio-web"
+
+[[repositories]]
+name = "Ujstor"
+git_url = "https://github.com/Ujstor/Ujstor"
+
+[[repositories]]
+name = "argoCD-test-helm"
+git_url = "https://github.com/Ujstor/argoCD-test-helm"
+
+[[repositories]]
+name = "argoCD-pipeline"
+git_url = "https://github.com/Ujstor/argoCD-pipeline"
+
+[[repositories]]
+name = "aws-lambda-dynamoDB-terraform"
+git_url = "https://github.com/Ujstor/aws-lambda-dynamoDB-terraform"
+
+[[repositories]]
+name = "dockprom"
+git_url = "https://github.com/Ujstor/dockprom"
+
+[[repositories]]
+name = "bubbletea"
+git_url = "https://github.com/Ujstor/bubbletea"
+
+[[repositories]]
+name = "kubernetes"
+git_url = "https://github.com/Ujstor/kubernetes"
+
+[[repositories]]
+name = "infra-assignment"
+git_url = "https://github.com/Ujstor/infra-assignment"
+
+[[repositories]]
+name = "hyprland-arch"
+git_url = "https://github.com/Ujstor/hyprland-arch"
+
+[[repositories]]
+name = "Debian-config"
+git_url = "https://github.com/Ujstor/Debian-config"
+
+[[repositories]]
+name = "gitea-gh-migration"
+git_url = "https://github.com/Ujstor/gitea-gh-migration"
+
+[[repositories]]
+name = "deployment-cluster-s3-db"
+git_url = "https://github.com/Ujstor/deployment-cluster-s3-db"
+
+[[repositories]]
+name = "coolify-hetzner-terraform"
+git_url = "https://github.com/Ujstor/coolify-hetzner-terraform"
+
+[[repositories]]
+name = "todo-go-htmx"
+git_url = "https://github.com/Ujstor/todo-go-htmx"
+
+[[repositories]]
+name = "social-media-fastapi"
+git_url = "https://github.com/Ujstor/social-media-fastapi"
+
+[[repositories]]
+name = "go-blueprint-htmx"
+git_url = "https://github.com/Ujstor/go-blueprint-htmx"
+
+[[repositories]]
+name = "personal-s3-storage-infrastructure"
+git_url = "https://github.com/Ujstor/personal-s3-storage-infrastructure"
+
+[[repositories]]
+name = "snippetbox"
+git_url = "https://github.com/Ujstor/snippetbox"
+
+[[repositories]]
+name = "rabbitmq-blueprint"
+git_url = "https://github.com/Ujstor/rabbitmq-blueprint"
+
+[[repositories]]
+name = "websocket-go"
+git_url = "https://github.com/Ujstor/websocket-go"
+
+[[repositories]]
+name = "genai-stack"
+git_url = "https://github.com/Ujstor/genai-stack"
+
+[[repositories]]
+name = "go-with-tests"
+git_url = "https://github.com/Ujstor/go-with-tests"
+
+[[repositories]]
+name = "logger-go-blueprint"
+git_url = "https://github.com/Ujstor/logger-go-blueprint"
+
+[[repositories]]
+name = "terraform-docs-code"
+git_url = "https://github.com/Ujstor/terraform-docs-code"
+
+[[repositories]]
+name = "github-readme-stats"
+git_url = "https://github.com/Ujstor/github-readme-stats"
+
+[[repositories]]
+name = "web-ssh-server"
+git_url = "https://github.com/Ujstor/web-ssh-server"
+
+[[repositories]]
+name = "webvm"
+git_url = "https://github.com/Ujstor/webvm"
+
+[[repositories]]
+name = "interpreter-in-go"
+git_url = "https://github.com/Ujstor/interpreter-in-go"
+
+[[repositories]]
+name = "self-hosting-ai-models"
+git_url = "https://github.com/Ujstor/self-hosting-ai-models"
+
+[[repositories]]
+name = "powershell-profile"
+git_url = "https://github.com/Ujstor/powershell-profile"
+
+[[repositories]]
+name = "magic-animate"
+git_url = "https://github.com/Ujstor/magic-animate"
+
+[[repositories]]
+name = "self-hosting-apps-home-network"
+git_url = "https://github.com/Ujstor/self-hosting-apps-home-network"
+
+[[repositories]]
+name = "learning-go"
+git_url = "https://github.com/Ujstor/learning-go"
+
+[[repositories]]
+name = "Basic-interpreter-in-Python"
+git_url = "https://github.com/Ujstor/Basic-interpreter-in-Python"
+
+[[repositories]]
+name = "jenkins-ssh-agent-go"
+git_url = "https://github.com/Ujstor/jenkins-ssh-agent-go"
+
+[[repositories]]
+name = "web-flask-authen-database"
+git_url = "https://github.com/Ujstor/web-flask-authen-database"
+
+[[repositories]]
+name = "streamlit-working-hours"
+git_url = "https://github.com/Ujstor/streamlit-working-hours"
+
+[[repositories]]
+name = "probit-exchange-api"
+git_url = "https://github.com/Ujstor/probit-exchange-api"
+
+[[repositories]]
+name = "todo-list-app-django"
+git_url = "https://github.com/Ujstor/todo-list-app-django"
+
+[[repositories]]
+name = "jenkins-ssh-agent-python"
+git_url = "https://github.com/Ujstor/jenkins-ssh-agent-python"
+
+[[repositories]]
+name = "haste-server"
+git_url = "https://github.com/Ujstor/haste-server"
+
+[[repositories]]
+name = "binance-tradingtool"
+git_url = "https://github.com/Ujstor/binance-tradingtool"
+
+[[repositories]]
+name = "bitmex-tradingtool"
+git_url = "https://github.com/Ujstor/bitmex-tradingtool"
+
+[[repositories]]
+name = "Data-Science-Introduction"
+git_url = "https://github.com/Ujstor/Data-Science-Introduction"
+
+[[repositories]]
+name = "working-hours-dataset"
+git_url = "https://github.com/Ujstor/working-hours-dataset"
+
+[[repositories]]
+name = "django-online-marketplace"
+git_url = "https://github.com/Ujstor/django-online-marketplace"
+
+[[repositories]]
+name = "python-intermediate"
+git_url = "https://github.com/Ujstor/python-intermediate"
+
+[[repositories]]
+name = "Python-Puzzles"
+git_url = "https://github.com/Ujstor/Python-Puzzles"
+
+[[repositories]]
+name = "CRUD-REST-API-Django"
+git_url = "https://github.com/Ujstor/CRUD-REST-API-Django"
+
+[[repositories]]
+name = "multi-clipboard"
+git_url = "https://github.com/Ujstor/multi-clipboard"
