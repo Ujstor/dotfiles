@@ -9,7 +9,7 @@ fi
 bash scripts/tmuxSetup
 bash scripts/nvim
 
-bash scripts/hcloud_k9s
+bash scripts/hcloud
 bash scripts/gh
 
 pip install ansible

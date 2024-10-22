@@ -10,7 +10,7 @@ sudo nala install -y wget gnupg apt-transport-https ca-certificates curl lsb-rel
 wget -qO- https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg || true
 echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
 sudo nala update
-sudo nala install -y terraform packer
+sudo nala install -y terraform packer vagrant
 
 # Kubectl
 sudo mkdir -p /etc/apt/keyrings
@@ -26,6 +26,21 @@ if [ "$(uname -m)" = "x86_64" ]; then
   sudo mv ./kind /usr/local/bin/kind
 fi
 
+curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+chmod +x kubectl
+mv -f kubectl /usr/local/bin
+
+curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+chmod 700 get_helm.sh
+./get_helm.sh
+
+curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash
+
+go install github.com/kubecolor/kubecolor@latest 
+
+# k9s
+go install github.com/derailed/k9s@latest
+
 # kubens & ctx (krew)
 (
   set -x
@@ -38,7 +53,4 @@ fi
   ./"${KREW}" install krew
 )
 
-kubectl krew install ctx
-kubectl krew install ns
-
-curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+kubectl krew install ctx ns tree node-shell
