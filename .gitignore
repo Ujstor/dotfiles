@@ -5,3 +5,12 @@ events/
 usage_anonymous_id
 dwm_old/
 
+# binaries
+dwm
+
+# Patch Fail
+*.rej
+*.orig
+
+# Object Files
+*.o

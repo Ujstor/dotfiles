@@ -36,6 +36,7 @@
 #include <sys/wait.h>
 #include <X11/cursorfont.h>
 #include <X11/keysym.h>
+#include <X11/XF86keysym.h>
 #include <X11/Xatom.h>
 #include <X11/Xlib.h>
 #include <X11/Xproto.h>
@@ -2663,9 +2664,9 @@ sigstatusbar(const Arg *arg)
 int
 swallow(Client *p, Client *c)
 {
-	if (c->noswallow > 0 || c->isterminal)
+	if (c->noswallow > 0)
 		return 0;
-	if (c->noswallow < 0 && !swallowfloating && c->isfloating)
+	if (!swallowfloating && c->isfloating)
 		return 0;
 
 	detach(c);
