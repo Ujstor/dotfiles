@@ -4,6 +4,7 @@ models/
 events/
 usage_anonymous_id
 dwm_old/
+get_helm.sh
 
 # binaries
 dwm

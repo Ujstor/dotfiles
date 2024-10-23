@@ -6,3 +6,10 @@ if ! command -v go &> /dev/null; then
   exit 1
 fi
 go install github.com/hetznercloud/cli/cmd/hcloud@latest
+
+# Kubecolor
+go install github.com/kubecolor/kubecolor@latest
+
+# k9s
+go install github.com/derailed/k9s@latest
+

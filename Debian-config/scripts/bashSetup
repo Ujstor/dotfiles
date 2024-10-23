@@ -6,12 +6,12 @@ YELLOW='\033[33m'
 GREEN='\033[32m'
 
 # Check if the home directory and linuxtoolbox folder exist, create them if they don't
-LINUXTOOLBOXDIR="$HOME/linuxtoolbox"
+LINUXTOOLBOXDIR="$HOME/dotfiles"
 
 if [ ! -d "$LINUXTOOLBOXDIR" ]; then
     echo "${YELLOW}Creating linuxtoolbox directory: $LINUXTOOLBOXDIR${RC}"
     mkdir -p "$LINUXTOOLBOXDIR"
-    echo "${GREEN}linuxtoolbox directory created: $LINUXTOOLBOXDIR${RC}"
+    echo "${GREEN}linuxtoolbox irectory created: $LINUXTOOLBOXDIR${RC}"
 fi
 
 if [ -d "$LINUXTOOLBOXDIR/mybash" ]; then rm -rf "$LINUXTOOLBOXDIR/mybash"; fi
@@ -26,10 +26,10 @@ else
 fi
 
 # add variables to top level so can easily be accessed by all functions
-PACKAGER=""
-SUDO_CMD=""
-SUGROUP=""
-GITPATH=""
+PACKAGER="apt"
+SUDO_CMD="sudo"
+SUGROUP="sudo"
+GITPATH="/dotfiles"
 
 cd "$LINUXTOOLBOXDIR/mybash" || exit
 

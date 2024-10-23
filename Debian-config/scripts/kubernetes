@@ -36,10 +36,6 @@ chmod 700 get_helm.sh
 
 curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash
 
-go install github.com/kubecolor/kubecolor@latest 
-
-# k9s
-go install github.com/derailed/k9s@latest
 
 # kubens & ctx (krew)
 (
