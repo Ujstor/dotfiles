@@ -59,10 +59,11 @@ cd $builddir
 rm -rf Nordzy-cursors
 
 # Beautiful bash
-curl -LO https://github.com/fastfetch-cli/fastfetch/releases/download/2.27.1/fastfetch-linux-amd64.zip
+curl -LO https://github.com/fastfetch-cli/fastfetch/releases/latest/download/fastfetch-linux-amd64.zip
 unzip fastfetch-linux-amd64.zip
-mv fastfetch /usr/local/bin/
-chmod +x /usr/local/bin/fastfetch
+ mv ./fastfetch-linux-amd64/usr/bin/fastfetch /usr/bin/
+rm -rf fastfetch-linux-amd64.zip ./fastfetch-linux-amd64
+chmod +x /usr/bin/fastfetch
 bash scripts/bashSetup
 
 bash scripts/go
@@ -94,6 +95,3 @@ bash setup.sh
 make clean install
 cp dwm.desktop /usr/share/xsessions
 cd $builddir
-
-# Use nala
-# bash scripts/usenala
