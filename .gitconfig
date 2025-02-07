@@ -3,7 +3,7 @@
 	name = Ujstor
 	email = astipan@gmail.com
 [credential "https://github.com"]
-	helper = 
+	helper =
 	helper = !/usr/bin/gh auth git-credential
 [credential "https://gist.github.com"]
 	helper = 
@@ -12,3 +12,5 @@
 	directory = /home/ujstor/debian-config/mybash
 [init]
 	defaultBranch = master
+[credential]
+	helper = cache --timeout=28800

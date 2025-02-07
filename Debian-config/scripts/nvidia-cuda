@@ -19,4 +19,4 @@ echo 'deb [signed-by='"$GPG_KEY_FILE"'] https://developer.download.nvidia.com/co
 
 sudo nala update
 
-sudo nala install nvidia-driver cuda-drivers-560 cuda -y
+sudo nala install nvidia-driver cuda-drivers-550 cuda -y

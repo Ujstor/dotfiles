@@ -747,7 +747,4 @@ complete -C /usr/bin/terraform t
 export NVM_DIR="$HOME/.config/nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
-
-# >>>> Vagrant command completion (start)
-. /opt/vagrant/embedded/gems/gems/vagrant-2.4.1/contrib/bash/completion.sh
-# <<<<  Vagrant command completion (end)
+export LIBVIRT_DEFAULT_URI='qemu:///system'
