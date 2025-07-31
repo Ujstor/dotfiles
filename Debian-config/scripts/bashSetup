@@ -1,11 +1,9 @@
 #!/bin/sh -e
-
 # Define color codes using tput for better compatibility
 RC=$(tput sgr0)
 RED=$(tput setaf 1)
 YELLOW=$(tput setaf 3)
 GREEN=$(tput setaf 2)
-
 LINUXTOOLBOXDIR="$HOME/linuxtoolbox"
 PACKAGER=""
 SUDO_CMD=""
@@ -28,9 +26,7 @@ setup_directories() {
         mkdir -p "$LINUXTOOLBOXDIR"
         print_colored "$GREEN" "linuxtoolbox directory created: $LINUXTOOLBOXDIR"
     fi
-
     if [ -d "$LINUXTOOLBOXDIR/mybash" ]; then rm -rf "$LINUXTOOLBOXDIR/mybash"; fi
-
     print_colored "$YELLOW" "Cloning mybash repository into: $LINUXTOOLBOXDIR/mybash"
     if git clone https://github.com/ChrisTitusTech/mybash "$LINUXTOOLBOXDIR/mybash"; then
         print_colored "$GREEN" "Successfully cloned mybash repository"
@@ -38,7 +34,6 @@ setup_directories() {
         print_colored "$RED" "Failed to clone mybash repository"
         exit 1
     fi
-
     cd "$LINUXTOOLBOXDIR/mybash" || exit
 }
 
@@ -102,6 +97,7 @@ check_environment() {
 
 install_dependencies() {
     DEPENDENCIES='bash bash-completion tar bat tree multitail fastfetch wget unzip fontconfig trash-cli'
+    
     if ! command_exists nvim; then
         DEPENDENCIES="${DEPENDENCIES} neovim"
     fi
@@ -115,26 +111,96 @@ install_dependencies() {
             ${SUDO_CMD} ${PACKAGER} install -y ${DEPENDENCIES}
             ;;
         emerge)
-            ${SUDO_CMD} ${PACKAGER} -v app-shells/bash app-shells/bash-completion app-arch/tar app-editors/neovim sys-apps/bat app-text/tree app-text/multitail app-misc/fastfetch app-misc/trash-cli
+            ${SUDO_CMD} ${PACKAGER} -v app-shells/bash app-shells/bash-completion app-arch/tar app-editors/neovim sys-apps/bat app-text/tree app-text/multitail app-misc/fastfetch app-misc/trash-cli sys-apps/exa
             ;;
         xbps-install)
-            ${SUDO_CMD} ${PACKAGER} -v ${DEPENDENCIES}
+            ${SUDO_CMD} ${PACKAGER} -v ${DEPENDENCIES} exa
             ;;
         nix-env)
-            ${SUDO_CMD} ${PACKAGER} -iA nixos.bash nixos.bash-completion nixos.gnutar nixos.neovim nixos.bat nixos.tree nixos.multitail nixos.fastfetch nixos.pkgs.starship nixos.trash-cli
+            ${SUDO_CMD} ${PACKAGER} -iA nixos.bash nixos.bash-completion nixos.gnutar nixos.neovim nixos.bat nixos.tree nixos.multitail nixos.fastfetch nixos.pkgs.starship nixos.trash-cli nixos.exa
             ;;
         dnf)
             ${SUDO_CMD} ${PACKAGER} install -y ${DEPENDENCIES}
+            install_exa_manual
             ;;
         zypper)
             ${SUDO_CMD} ${PACKAGER} install -n ${DEPENDENCIES}
+            install_exa_manual
             ;;
         *)
             ${SUDO_CMD} ${PACKAGER} install -yq ${DEPENDENCIES}
+            install_exa_debian_ubuntu
             ;;
     esac
-
+    
     install_font
+}
+
+install_exa_debian_ubuntu() {
+    if ! command_exists exa; then
+        print_colored "$YELLOW" "Installing exa..."
+        case "$PACKAGER" in
+            nala|apt)
+                # For newer Ubuntu versions (22.04+) exa might be available
+                if ${SUDO_CMD} ${PACKAGER} install -y exa 2>/dev/null; then
+                    print_colored "$GREEN" "exa installed from package manager"
+                else
+                    install_exa_manual
+                fi
+                ;;
+            *)
+                install_exa_manual
+                ;;
+        esac
+    else
+        printf "exa already installed\n"
+    fi
+}
+
+install_exa_manual() {
+    if ! command_exists exa; then
+        print_colored "$YELLOW" "Installing exa manually..."
+        EXA_VERSION="v0.10.1"
+        ARCH=$(uname -m)
+
+        case $ARCH in
+            x86_64)
+                EXA_ARCH="x86_64"
+                ;;
+            aarch64|arm64)
+                EXA_ARCH="aarch64"
+                ;;
+            *)
+                print_colored "$RED" "Unsupported architecture for exa: $ARCH"
+                return 1
+                ;;
+        esac
+
+        EXA_URL="https://github.com/ogham/exa/releases/download/${EXA_VERSION}/exa-linux-${EXA_ARCH}-${EXA_VERSION}.zip"
+        TEMP_DIR=$(mktemp -d)
+
+        if wget -q "$EXA_URL" -O "$TEMP_DIR/exa.zip"; then
+            cd "$TEMP_DIR"
+            unzip -q exa.zip
+            ${SUDO_CMD} mv bin/exa /usr/local/bin/
+            ${SUDO_CMD} chmod +x /usr/local/bin/exa
+
+            # Install man page if available
+            if [ -f man/exa.1 ]; then
+                ${SUDO_CMD} mkdir -p /usr/local/share/man/man1/
+                ${SUDO_CMD} mv man/exa.1 /usr/local/share/man/man1/
+            fi
+
+            rm -rf "$TEMP_DIR"
+            print_colored "$GREEN" "exa installed successfully"
+        else
+            print_colored "$RED" "Failed to download exa"
+            rm -rf "$TEMP_DIR"
+            return 1
+        fi
+    else
+        printf "exa already installed\n"
+    fi
 }
 
 install_pacman_dependencies() {
@@ -146,6 +212,7 @@ install_pacman_dependencies() {
     else
         printf "AUR helper already installed\n"
     fi
+
     if command_exists yay; then
         AUR_HELPER="yay"
     elif command_exists paru; then
@@ -154,7 +221,9 @@ install_pacman_dependencies() {
         printf "No AUR helper found. Please install yay or paru.\n"
         exit 1
     fi
-    ${AUR_HELPER} --noconfirm -S ${DEPENDENCIES}
+
+    # Add exa to dependencies for Arch
+    ${AUR_HELPER} --noconfirm -S ${DEPENDENCIES} exa
 }
 
 install_font() {
