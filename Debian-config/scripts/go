@@ -1,7 +1,7 @@
 #!/bin/bash
 
 download_dir="$HOME/Downloads"
-go_version="go1.23"
+go_version="go1.24.5"
 go_url="https://golang.org/dl/${go_version}.linux-amd64.tar.gz"
 
 wget -P "$download_dir" "$go_url"

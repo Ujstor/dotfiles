@@ -18,6 +18,15 @@ return { -- Useful plugin to show you pending keybinds.
       { '<leader>s_', hidden = true },
       { '<leader>w', group = '[W]orkspace' },
       { '<leader>w_', hidden = true },
+      { '<leader>m', group = '[M]arkdown' },
+      { '<leader>m_', hidden = true },
+      { '<leader>u', desc = '[U]ndotree toggle' },
+      { '<leader>cc', desc = '[C]opilot [C]hat toggle' },
+      { '<leader>co', desc = '[C]opilot [O]pen' },
+      { '<leader>ccr', desc = '[C]opilot [C]hat [R]eset' },
+      { '<leader>cs', desc = '[C]opilot [S]top' },
+      { '<leader>cd', desc = '[C]opilot [D]isable' },
+      { '<leader>ce', desc = '[C]opilot [E]nable' },
     }
   end,
 }
