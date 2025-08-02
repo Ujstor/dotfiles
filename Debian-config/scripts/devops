@@ -227,7 +227,7 @@ install_kubernetes_tools() {
     # Install kind
     log_info "Installing kind..."
     if [ "$(uname -m)" = "x86_64" ]; then
-        curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.20.0/kind-linux-amd64
+        curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.29.0/kind-linux-amd64
         chmod +x ./kind
         sudo mv ./kind /usr/local/bin/kind
     fi
@@ -267,7 +267,7 @@ install_kubectl_plugins() {
     export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"
 
     # Install useful kubectl plugins
-    kubectl krew install ctx ns tree node-shell
+    kubectl krew install ctx ns tree node-shell modify-secret cilium neat stern rook-ceph
 }
 
 # Function to install Go-based tools
