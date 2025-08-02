@@ -66,13 +66,11 @@ rm -rf fastfetch-linux-amd64.zip ./fastfetch-linux-amd64
 chmod +x /usr/bin/fastfetch
 bash scripts/bashSetup
 
-bash scripts/go
+bash scripts/devops
 bash scripts/brave
 
 #docke
 bash scripts/docker
-#k8s
-bash scripts/kubernetes
 
 #mount scripts
 cp scripts/mount-menu.sh /usr/local/bin

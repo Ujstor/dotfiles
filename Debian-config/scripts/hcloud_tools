@@ -8,10 +8,3 @@ fi
 go install github.com/hetznercloud/cli/cmd/hcloud@latest
 
 go install github.com/melkeydev/go-blueprint@latest
-
-# Kubecolor
-go install github.com/kubecolor/kubecolor@latest
-
-# k9s
-go install github.com/derailed/k9s@latest
-
