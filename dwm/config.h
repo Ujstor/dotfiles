@@ -102,7 +102,6 @@ static Key keys[] = {
     { MODKEY,                       XK_b,                      spawn,          SHCMD ("xdg-open https://")},
     { MODKEY,                       XK_c,                      spawn,          SHCMD ("discord")},
     { MODKEY,                       XK_v,                      spawn,          SHCMD ("virt-manager")},
-    { MODKEY|ShiftMask,             XK_v,                      spawn,          SHCMD ("chia-blockchain")},
     { MODKEY,                       XK_p,                      spawn,          SHCMD ("flameshot full -p /home/ujstor/Pictures/")},
     { MODKEY|ShiftMask,             XK_p,                      spawn,          SHCMD ("flameshot gui -p /home/ujstor/Pictures/")},
     { MODKEY|ControlMask,           XK_p,                      spawn,          SHCMD ("flameshot gui --clipboard")},
@@ -147,6 +146,7 @@ static Key keys[] = {
     TAGKEYS(                        XK_6,                      5)
     TAGKEYS(                        XK_7,                      6)
     TAGKEYS(                        XK_8,                      7)
+    TAGKEYS(                        XK_9,                      8)
     { MODKEY|ShiftMask,             XK_q,                      quit,           {0} },
     { MODKEY|ControlMask|ShiftMask, XK_r,                      spawn,          SHCMD("systemctl reboot")},
     { MODKEY|ControlMask|ShiftMask, XK_s,                      spawn,          SHCMD("systemctl suspend")},
