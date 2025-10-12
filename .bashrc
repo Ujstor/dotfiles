@@ -353,14 +353,14 @@ up() {
 }
 
 # Automatically do an ls after each cd, z, or zoxide
-# cd ()
-# {
-# 	if [ -n "$1" ]; then
-# 		builtin cd "$@" && ls -la
-# 	else
-# 		builtin cd ~ && ls -la
-# 	fi
-# }
+cd ()
+{
+	if [ -n "$1" ]; then
+		builtin cd "$@" && ls -la
+	else
+		builtin cd ~ && ls -la
+	fi
+}
 
 # Returns the last 2 fields of the working directory
 pwdtail() {
@@ -597,9 +597,9 @@ trim() {
 	echo -n "$var"
 }
 
-# _z_cd() {
-#     cd "$@" || return "$?"
-# }
+_z_cd() {
+    cd "$@" || return "$?"
+}
 
 function hb {
     if [ $# -eq 0 ]; then
@@ -659,6 +659,22 @@ if [[ $- == *i* ]]; then
     # Bind Ctrl+f to insert 'zi' followed by a newline
     bind '"\C-f":"zi\n"'
 fi
+
+run_in_all_dirs() {
+  if [ $# -eq 0 ]; then
+      echo "Usage: run_in_all_dirs <command> [args...]"
+      echo "Example: run_in_all_dirs git status"
+      return 1
+  fi
+
+  for dir in */; do
+      if [ -d "$dir" ]; then
+	  echo "Executing in: $dir"
+	  (cd "$dir" && "$@")
+	  echo "---"
+      fi
+  done
+}
 
 export PATH=$PATH:"$HOME/.local/bin:$HOME/.cargo/bin:/var/lib/flatpak/exports/bin:/.local/share/flatpak/exports/bin"
 
@@ -740,16 +756,23 @@ alias tf='terraform'
 
 source <(k3d completion bash)
 source <(go-blueprint completion bash)
-
+source <(k8s-templater completion bash)
+source <(k9s completion bash)
 alias t='terraform'
 complete -C /usr/bin/terraform t
 
 export NVM_DIR="$HOME/.config/nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+
 export LIBVIRT_DEFAULT_URI='qemu:///system'
 
 export PATH=/home/ujstor/bin:$PATH
 
 [[ -e "/home/ujstor/lib/oracle-cli/lib/python3.10/site-packages/oci_cli/bin/oci_autocomplete.sh" ]] && source "/home/ujstor/lib/oracle-cli/lib/python3.10/site-packages/oci_cli/bin/oci_autocomplete.sh"
 export PATH="$HOME/.govm/shim:$PATH"
+
+# opencode
+export PATH=/home/ujstor/.opencode/bin:$PATH
+export PATH="$HOME/.govm/shim:$PATH"
+export PATH="/home/ujstor/.govm/shim:$PATH"

@@ -11,6 +11,7 @@
 [safe]
 	directory = /home/ujstor/debian-config/mybash
 [init]
-	defaultBranch = master
+	defaultBranch = main
+
 [credential]
-	helper = cache --timeout=28800
+    helper = cache --timeout=3600
