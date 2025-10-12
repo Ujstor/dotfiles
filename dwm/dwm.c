@@ -58,16 +58,16 @@
 /* macros */
 #define BUTTONMASK              (ButtonPressMask|ButtonReleaseMask)
 #define CLEANMASK(mask)         (mask & ~(numlockmask|LockMask) & (ShiftMask|ControlMask|Mod1Mask|Mod2Mask|Mod3Mask|Mod4Mask|Mod5Mask))
-#define INTERSECT(x,y,w,h,m)    (MAX(0, MIN((x)+(w),(m)->wx+(m)->ww) - MAX((x),(m)->wx)) \
-                               * MAX(0, MIN((y)+(h),(m)->wy+(m)->wh) - MAX((y),(m)->wy)))
+#define INTERSECT(x,y,w,h,m)    (MAX(0, MIN((x)+(w),(m)->mx+(m)->mw) - MAX((x),(m)->mx)) \
+                               * MAX(0, MIN((y)+(h),(m)->my+(m)->mh) - MAX((y),(m)->my)))
 #define INTERSECTC(x,y,w,h,z)   (MAX(0, MIN((x)+(w),(z)->x+(z)->w) - MAX((x),(z)->x)) \
                                * MAX(0, MIN((y)+(h),(z)->y+(z)->h) - MAX((y),(z)->y)))
 #define ISVISIBLE(C)            ((C->tags & C->mon->tagset[C->mon->seltags]))
-#define LENGTH(X)               (sizeof X / sizeof X[0])
 #define MOUSEMASK               (BUTTONMASK|PointerMotionMask)
 #define WIDTH(X)                ((X)->w + 2 * (X)->bw)
 #define HEIGHT(X)               ((X)->h + 2 * (X)->bw)
 #define TAGMASK                 ((1 << LENGTH(tags)) - 1)
+#define TAGSLENGTH              (LENGTH(tags))
 #define TEXTW(X)                (drw_fontset_getwidth(drw, (X)) + lrpad)
 
 #define SYSTEM_TRAY_REQUEST_DOCK    0
@@ -89,7 +89,7 @@ enum { SchemeNorm, SchemeSel }; /* color schemes */
 enum { NetSupported, NetWMName, NetWMState, NetWMCheck,
        NetSystemTray, NetSystemTrayOP, NetSystemTrayOrientation, NetSystemTrayOrientationHorz,
        NetWMFullscreen, NetActiveWindow, NetWMWindowType, NetWMIcon,
-       NetWMWindowTypeDialog, NetClientList, NetLast }; /* EWMH atoms */
+       NetWMWindowTypeDialog, NetClientList, NetDesktopNames, NetDesktopViewport, NetNumberOfDesktops, NetCurrentDesktop, NetWMDesktop, NetLast }; /* EWMH atoms */
 enum { Manager, Xembed, XembedInfo, XLast }; /* Xembed atoms */
 enum { WMProtocols, WMDelete, WMState, WMTakeFocus, WMLast }; /* default atoms */
 enum { ClkTagBar, ClkLtSymbol, ClkStatusText, ClkWinTitle,
@@ -152,7 +152,8 @@ struct Monitor {
 	float mfact;
 	int nmaster;
 	int num;
-	int by;               /* bar geometry */
+	int by, bh;           /* bar geometry */
+	int tx, tw;           /* bar tray geometry */
 	int mx, my, mw, mh;   /* screen size */
 	int wx, wy, ww, wh;   /* window area  */
 	unsigned int seltags;
@@ -165,6 +166,7 @@ struct Monitor {
 	Client *stack;
 	Monitor *next;
 	Window barwin;
+	Window traywin;
 	const Layout *lt[2];
 	Pertag *pertag;
 };
@@ -229,6 +231,8 @@ static int isdescprocess(pid_t p, pid_t c);
 static void keypress(XEvent *e);
 static void killclient(const Arg *arg);
 static void manage(Window w, XWindowAttributes *wa);
+static void managealtbar(Window win, XWindowAttributes *wa);
+static void managetray(Window win, XWindowAttributes *wa);
 static void mappingnotify(XEvent *e);
 static void maprequest(XEvent *e);
 static void monocle(Monitor *m);
@@ -254,21 +258,28 @@ static void restack(Monitor *m);
 static void run(void);
 static void runautostart(void);
 static void scan(void);
+static void scantray(void);
 static int sendevent(Window w, Atom proto, int m, long d0, long d1, long d2, long d3, long d4);
 static void sendmon(Client *c, Monitor *m);
 static void setclientstate(Client *c, long state);
+static void setcurrentdesktop(void);
+static void setdesktopnames(void);
+static void setclientdesktop(Client *c);
 static void setfocus(Client *c);
 static void setfullscreen(Client *c, int fullscreen);
 static void fullscreen(const Arg *arg);
 static void setlayout(const Arg *arg);
 static void setcfact(const Arg *arg);
 static void setmfact(const Arg *arg);
+static void setnumdesktops(void);
 static void setup(void);
+static void setviewport(void);
 static void seturgent(Client *c, int urg);
 static void sigchld(int unused);
 static void showhide(Client *c);
 static void sigstatusbar(const Arg *arg);
 static void spawn(const Arg *arg);
+static void spawnbar();
 static Monitor *systraytomon(Monitor *m);
 static int swallow(Client *p, Client *c);
 static Client *swallowingclient(Window w);
@@ -283,7 +294,10 @@ static void toggletag(const Arg *arg);
 static void toggleview(const Arg *arg);
 static void unfocus(Client *c, int setfocus);
 static void unmanage(Client *c, int destroyed);
+static void unmanagealtbar(Window w);
+static void unmanagetray(Window w);
 static void unmapnotify(XEvent *e);
+static void updatecurrentdesktop(void);
 static void unswallow(Client *c);
 static void updatebarpos(Monitor *m);
 static void updatebars(void);
@@ -304,6 +318,7 @@ static void warp(Client *c);
 static Client *wintoclient(Window w);
 static Monitor *wintomon(Window w);
 static Client *wintosystrayicon(Window w);
+static int wmclasscontains(Window win, const char *class, const char *name);
 static int xerror(Display *dpy, XErrorEvent *ee);
 static int xerrordummy(Display *dpy, XErrorEvent *ee);
 static int xerrorstart(Display *dpy, XErrorEvent *ee);
@@ -376,6 +391,13 @@ unsigned int tagw[LENGTH(tags)];
 
 /* compile-time check if all tags fit into an unsigned int bit array. */
 struct NumTags { char limitexceeded[LENGTH(tags) > 31 ? -1 : 1]; };
+
+/* monitor-specific tag management */
+static int monitorcount = 1;
+static unsigned int getmontagmask(int monnum);
+static int getmonitorforselectedtag(void);
+static void updatemonitorcount(void);
+static void initmonitortags(void);
 
 /* dwm will keep pid's of processes from autostart array and kill them at quit */
 static pid_t *autostart_pids;
@@ -450,7 +472,24 @@ applyrules(Client *c)
 		XFree(ch.res_class);
 	if (ch.res_name)
 		XFree(ch.res_name);
+	
+	updatemonitorcount();
 	c->tags = c->tags & TAGMASK ? c->tags & TAGMASK : c->mon->tagset[c->mon->seltags];
+	
+	/* Ensure the client's tags are valid for its assigned monitor */
+	unsigned int montags = getmontagmask(c->mon->num);
+	if (!(c->tags & montags)) {
+		/* If no valid tags, assign the first tag of this monitor */
+		for (i = 0; i < LENGTH(tags); i++) {
+			if (montags & (1 << i)) {
+				c->tags = 1 << i;
+				break;
+			}
+		}
+	} else {
+		/* Mask to only valid tags for this monitor */
+		c->tags &= montags;
+	}
 }
 
 int
@@ -604,7 +643,14 @@ buttonpress(XEvent *e)
 		unsigned int occ = 0;
 		for(c = m->clients; c; c=c->next)
 			occ |= c->tags == TAGMASK ? 0 : c->tags;
+		
+		updatemonitorcount();
+		unsigned int montags = getmontagmask(m->num);
+		
 		do {
+			/* Only consider tags that belong to this monitor */
+			if (!(montags & (1 << i)))
+				continue;
 			/* Do not reserve space for vacant tags */
 			if (!(occ & 1 << i || m->tagset[m->seltags] & 1 << i))
 				continue;
@@ -710,8 +756,10 @@ cleanupmon(Monitor *mon)
 		for (m = mons; m && m->next != mon; m = m->next);
 		m->next = mon->next;
 	}
-	XUnmapWindow(dpy, mon->barwin);
-	XDestroyWindow(dpy, mon->barwin);
+	if (!usealtbar) {
+		XUnmapWindow(dpy, mon->barwin);
+		XDestroyWindow(dpy, mon->barwin);
+	}
 	free(mon);
 }
 
@@ -890,11 +938,23 @@ createmon(void)
 	unsigned int i;
 
 	m = ecalloc(1, sizeof(Monitor));
+	
+	/* Calculate monitor number based on position in linked list */
+	m->num = 0;
+	if (mons) {
+		Monitor *temp;
+		for (temp = mons; temp; temp = temp->next)
+			m->num++;
+	}
+	
+	/* Set default tagset to first tag - will be updated later if needed */
 	m->tagset[0] = m->tagset[1] = 1;
+		
 	m->mfact = mfact;
 	m->nmaster = nmaster;
 	m->showbar = showbar;
 	m->topbar = topbar;
+	m->bh = bh;
 	m->lt[0] = &layouts[0];
 	m->lt[1] = &layouts[1 % LENGTH(layouts)];
 	strncpy(m->ltsymbol, layouts[0].symbol, sizeof m->ltsymbol);
@@ -919,6 +979,7 @@ void
 destroynotify(XEvent *e)
 {
 	Client *c;
+	Monitor *m;
 	XDestroyWindowEvent *ev = &e->xdestroywindow;
 
 	if ((c = wintoclient(ev->window)))
@@ -930,6 +991,10 @@ destroynotify(XEvent *e)
 		resizebarwin(selmon);
 		updatesystray();
 	}
+	else if (usealtbar && (m = wintomon(ev->window)) && m->barwin == ev->window)
+		unmanagealtbar(ev->window);
+	else if (usealtbar && m->traywin == ev->window)
+		unmanagetray(ev->window);
 }
 
 void
@@ -975,55 +1040,50 @@ dirtomon(int dir)
 void
 drawbar(Monitor *m)
 {
-    // Initialize variables for drawing.
-	int x, w, tw = 0, stw = 0; // x: current x position, w: width, tw: text width, stw: systray width
-	int boxs = drw->fonts->h / 9; // boxs: size of the indicator box
-	int boxw = drw->fonts->h / 6 + 2; // boxw: width of the indicator box
-	unsigned int i, occ = 0, urg = 0; // i: iterator, occ: occupied tags, urg: urgent tags
+	if (usealtbar)
+		return;
+
+	int x, w, tw = 0, stw = 0;
+	int boxs = drw->fonts->h / 9;
+	int boxw = drw->fonts->h / 6 + 2;
+	unsigned int i, occ = 0, urg = 0;
 	Client *c;
 
-    // Return immediately if the monitor's showbar flag is not set.
 	if (!m->showbar)
 		return;
 
-    // Calculate the systray width if the systray is enabled, on the current monitor, and not on the left.
 	if(showsystray && m == systraytomon(m) && !systrayonleft)
 		stw = getsystraywidth();
 
-	// Draw the status text on the selected monitor.
-	if (m == selmon) {
-		char *text, *s, ch;
+	/* draw status first so it can be overdrawn by tags later */
+	if (m == selmon) { /* status is only drawn on selected monitor */
 		drw_setscheme(drw, scheme[SchemeNorm]);
-		x = 0;
-		for (text = s = stext; *s; s++) {
-			if ((unsigned char)(*s) < ' ') {
-				ch = *s;
-				*s = '\0';
-				tw = TEXTW(text) - lrpad;
-				drw_text(drw, m->ww - statusw - stw + x, 0, tw, bh, 0, text, 0);
-				x += tw;
-				*s = ch;
-				text = s + 1;
-			}
-		}
-		tw = TEXTW(text) - lrpad + 2;
-		drw_text(drw, m->ww - statusw - stw + x, 0, tw, bh, 0, text, 0);
-		tw = statusw;
+		tw = TEXTW(stext) - lrpad + 2; /* 2px right padding */
+		drw_text(drw, m->ww - tw - stw, 0, tw, bh, 0, stext, 0);
 	}
 
-    // Resize the bar window to fit the new content.
-	resizebarwin(m);
+	// Start x at 0, but only draw layout symbol if it's not an empty string
+	x = 0;
+	if (m->ltsymbol[0] != '\0' && strcmp(m->ltsymbol, "") != 0) {
+		w = TEXTW(m->ltsymbol);
+		drw_setscheme(drw, scheme[SchemeNorm]);
+		x = drw_text(drw, x, 0, w, bh, lrpad / 2, m->ltsymbol, 0);
+	}
 
-    // Determine which tags are occupied and urgent.
 	for (c = m->clients; c; c = c->next) {
 		occ |= c->tags == TAGMASK ? 0 : c->tags;
 		if (c->isurgent)
 			urg |= c->tags;
 	}
 
-    // Draw tags, indicating the selected, occupied, and urgent tags.
+	updatemonitorcount();
+	unsigned int montags = getmontagmask(m->num);
+
 	x = 0;
 	for (i = 0; i < LENGTH(tags); i++) {
+		/* Only draw tags that belong to this monitor */
+		if (!(montags & (1 << i)))
+			continue;
 		/* Do not draw vacant tags */
 		if(!(occ & 1 << i || m->tagset[m->seltags] & 1 << i))
 			continue;
@@ -1033,12 +1093,6 @@ drawbar(Monitor *m)
 		x += w;
 	}
 
-    // Draw the layout symbol.
-	w = TEXTW(m->ltsymbol);
-	drw_setscheme(drw, scheme[SchemeNorm]);
-	x = drw_text(drw, x, 0, w, bh, lrpad / 2, m->ltsymbol, 0);
-
-    // Draw the window title or a blank space if no window is selected.
 	if ((w = m->ww - tw - stw - x) > bh) {
 		if (m->sel) {
 			drw_setscheme(drw, scheme[m == selmon ? SchemeSel : SchemeNorm]);
@@ -1056,7 +1110,6 @@ drawbar(Monitor *m)
 		}
 	}
 
-    // Map the drawn content to the bar window.
 	drw_map(drw, m->barwin, 0, 0, m->ww - stw, bh);
 }
 
@@ -1148,6 +1201,7 @@ focusmon(const Arg *arg)
 	selmon = m;
 	focus(NULL);
 	warp(selmon->sel);
+	updatecurrentdesktop();
 }
 
 void
@@ -1560,6 +1614,7 @@ manage(Window w, XWindowAttributes *wa)
 		(unsigned char *) &(c->win), 1);
 	XMoveResizeWindow(dpy, c->win, c->x + 2 * sw, c->y, c->w, c->h); /* some windows require this */
 	setclientstate(c, NormalState);
+	setclientdesktop(c);
 	if (c->mon == selmon)
 		unfocus(selmon->sel, 0);
 	c->mon->sel = c;
@@ -1570,6 +1625,44 @@ manage(Window w, XWindowAttributes *wa)
 	focus(NULL);
 	if (ISVISIBLE(c))
 		warp(c);
+}
+
+void
+managealtbar(Window win, XWindowAttributes *wa)
+{
+	Monitor *m;
+	if (!(m = recttomon(wa->x, wa->y, wa->width, wa->height)))
+		return;
+
+	m->barwin = win;
+	m->by = wa->y;
+	bh = m->bh = wa->height;
+	updatebarpos(m);
+	arrange(m);
+	XSelectInput(dpy, win, EnterWindowMask|FocusChangeMask|PropertyChangeMask|StructureNotifyMask);
+	XMoveResizeWindow(dpy, win, wa->x, wa->y, wa->width, wa->height);
+	XMapWindow(dpy, win);
+	XChangeProperty(dpy, root, netatom[NetClientList], XA_WINDOW, 32, PropModeAppend,
+		(unsigned char *) &win, 1);
+}
+
+void
+managetray(Window win, XWindowAttributes *wa)
+{
+	Monitor *m;
+	if (!(m = recttomon(wa->x, wa->y, wa->width, wa->height)))
+		return;
+
+	m->traywin = win;
+	m->tx = wa->x;
+	m->tw = wa->width;
+	updatebarpos(m);
+	arrange(m);
+	XSelectInput(dpy, win, EnterWindowMask|FocusChangeMask|PropertyChangeMask|StructureNotifyMask);
+	XMoveResizeWindow(dpy, win, wa->x, wa->y, wa->width, wa->height);
+	XMapWindow(dpy, win);
+	XChangeProperty(dpy, root, netatom[NetClientList], XA_WINDOW, 32, PropModeAppend,
+			(unsigned char *) &win, 1);
 }
 
 void
@@ -1596,7 +1689,9 @@ maprequest(XEvent *e)
 
 	if (!XGetWindowAttributes(dpy, ev->window, &wa) || wa.override_redirect)
 		return;
-	if (!wintoclient(ev->window))
+	if (usealtbar && wmclasscontains(ev->window, altbarclass, ""))
+		managealtbar(ev->window, &wa);
+	else if (!wintoclient(ev->window))
 		manage(ev->window, &wa);
 }
 
@@ -2037,7 +2132,7 @@ resizebarwin(Monitor *m) {
 	unsigned int w = m->ww;
 	if (showsystray && m == systraytomon(m) && !systrayonleft)
 		w -= getsystraywidth();
-	XMoveResizeWindow(dpy, m->barwin, m->wx, m->by, w, bh);
+	XMoveResizeWindow(dpy, m->barwin, m->wx, m->by, w, m->bh);
 }
 
 void
@@ -2269,7 +2364,9 @@ scan(void)
 			if (!XGetWindowAttributes(dpy, wins[i], &wa)
 			|| wa.override_redirect || XGetTransientForHint(dpy, wins[i], &d1))
 				continue;
-			if (wa.map_state == IsViewable || getstate(wins[i]) == IconicState)
+			if (usealtbar && wmclasscontains(wins[i], altbarclass, ""))
+				managealtbar(wins[i], &wa);
+			else if (wa.map_state == IsViewable || getstate(wins[i]) == IconicState)
 				manage(wins[i], &wa);
 		}
 		for (i = 0; i < num; i++) { /* now the transients */
@@ -2289,15 +2386,61 @@ scan(void)
 }
 
 void
+scantray(void)
+{
+	unsigned int num;
+	Window d1, d2, *wins = NULL;
+	XWindowAttributes wa;
+
+	if (XQueryTree(dpy, root, &d1, &d2, &wins, &num)) {
+		for (unsigned int i = 0; i < num; i++) {
+			if (wmclasscontains(wins[i], altbarclass, alttrayname)) {
+				if (!XGetWindowAttributes(dpy, wins[i], &wa))
+					break;
+				managetray(wins[i], &wa);
+			}
+		}
+	}
+
+	if (wins)
+		XFree(wins);
+}
+
+void
 sendmon(Client *c, Monitor *m)
 {
-	if (c->mon == m)
+	unsigned int montags;
+	int i;
+	
+	if (!c || !m || c->mon == m)
 		return;
 	unfocus(c, 1);
 	detach(c);
 	detachstack(c);
 	c->mon = m;
-	c->tags = m->tagset[m->seltags]; /* assign tags of target monitor */
+	
+	updatemonitorcount();
+	montags = getmontagmask(m->num);
+	
+	/* Assign appropriate tags for the target monitor */
+	if (!(c->tags & montags)) {
+		/* If client's current tags don't work on target monitor, assign first valid tag */
+		for (i = 0; i < LENGTH(tags); i++) {
+			if (montags & (1 << i)) {
+				c->tags = 1 << i;
+				break;
+			}
+		}
+		/* Fallback if no valid tags found */
+		if (!(c->tags & montags)) {
+			c->tags = m->tagset[m->seltags] ? m->tagset[m->seltags] : 1;
+		}
+	} else {
+		/* Mask to only valid tags for target monitor */
+		c->tags &= montags;
+	}
+	
+	setclientdesktop(c);
 	attachbottom(c);
 	attachstack(c);
 	arrange(NULL);
@@ -2311,6 +2454,39 @@ setclientstate(Client *c, long state)
 
 	XChangeProperty(dpy, c->win, wmatom[WMState], wmatom[WMState], 32,
 		PropModeReplace, (unsigned char *)data, 2);
+}
+
+void
+setcurrentdesktop(void){
+	long data[] = { 0 };
+	XChangeProperty(dpy, root, netatom[NetCurrentDesktop], XA_CARDINAL, 32, PropModeReplace, (unsigned char *)data, 1);
+}
+
+void setdesktopnames(void){
+	XTextProperty text;
+	Xutf8TextListToTextProperty(dpy, (char**)tags, TAGSLENGTH, XUTF8StringStyle, &text);
+	XSetTextProperty(dpy, root, &text, netatom[NetDesktopNames]);
+}
+
+void
+setclientdesktop(Client *c)
+{
+    long data[] = { 0 };
+    int i;
+    
+    /* Find which desktop/tag this client is on */
+    for (i = 0; i < TAGSLENGTH && !(c->tags & (1 << i)); i++);
+    
+    if (i < TAGSLENGTH) {
+        data[0] = i;
+    } else {
+        /* Client is on multiple tags or no tags - set to current desktop */
+        for (i = 0; i < TAGSLENGTH && !(selmon->tagset[selmon->seltags] & (1 << i)); i++);
+        data[0] = (i < TAGSLENGTH) ? i : 0;
+    }
+    
+    XChangeProperty(dpy, c->win, netatom[NetWMDesktop], XA_CARDINAL, 32,
+        PropModeReplace, (unsigned char *)data, 1);
 }
 
 int
@@ -2347,6 +2523,12 @@ sendevent(Window w, Atom proto, int mask, long d0, long d1, long d2, long d3, lo
 		XSendEvent(dpy, w, False, mask, &ev);
 	}
 	return exists;
+}
+
+void
+setnumdesktops(void){
+	long data[] = { TAGSLENGTH };
+	XChangeProperty(dpy, root, netatom[NetNumberOfDesktops], XA_CARDINAL, 32, PropModeReplace, (unsigned char *)data, 1);
 }
 
 void
@@ -2525,8 +2707,10 @@ setup(void)
 	if (!drw_fontset_create(drw, fonts, LENGTH(fonts)))
 		die("no fonts could be loaded.");
 	lrpad = drw->fonts->h;
-	bh = drw->fonts->h + 2;
+	bh = usealtbar ? 0 : drw->fonts->h + 2;
 	updategeom();
+	/* Initialize monitor-specific tags after geometry is set up */
+	initmonitortags();
 	/* init atoms */
 	utf8string = XInternAtom(dpy, "UTF8_STRING", False);
 	wmatom[WMProtocols] = XInternAtom(dpy, "WM_PROTOCOLS", False);
@@ -2549,6 +2733,11 @@ setup(void)
 	netatom[NetWMWindowType] = XInternAtom(dpy, "_NET_WM_WINDOW_TYPE", False);
 	netatom[NetWMWindowTypeDialog] = XInternAtom(dpy, "_NET_WM_WINDOW_TYPE_DIALOG", False);
 	netatom[NetClientList] = XInternAtom(dpy, "_NET_CLIENT_LIST", False);
+	netatom[NetDesktopViewport] = XInternAtom(dpy, "_NET_DESKTOP_VIEWPORT", False);
+	netatom[NetNumberOfDesktops] = XInternAtom(dpy, "_NET_NUMBER_OF_DESKTOPS", False);
+	netatom[NetCurrentDesktop] = XInternAtom(dpy, "_NET_CURRENT_DESKTOP", False);
+	netatom[NetDesktopNames] = XInternAtom(dpy, "_NET_DESKTOP_NAMES", False);
+	netatom[NetWMDesktop] = XInternAtom(dpy, "_NET_WM_DESKTOP", False);
 	xatom[Manager] = XInternAtom(dpy, "MANAGER", False);
 	xatom[Xembed] = XInternAtom(dpy, "_XEMBED", False);
 	xatom[XembedInfo] = XInternAtom(dpy, "_XEMBED_INFO", False);
@@ -2580,6 +2769,10 @@ setup(void)
 	/* EWMH support per view */
 	XChangeProperty(dpy, root, netatom[NetSupported], XA_ATOM, 32,
 		PropModeReplace, (unsigned char *) netatom, NetLast);
+	setnumdesktops();
+	setcurrentdesktop();
+	setdesktopnames();
+	setviewport();
 	XDeleteProperty(dpy, root, netatom[NetClientList]);
 	/* select events */
 	wa.cursor = cursor[CurNormal]->cursor;
@@ -2590,6 +2783,13 @@ setup(void)
 	XSelectInput(dpy, root, wa.event_mask);
 	grabkeys();
 	focus(NULL);
+	spawnbar();
+}
+
+void
+setviewport(void){
+	long data[] = { 0, 0 };
+	XChangeProperty(dpy, root, netatom[NetDesktopViewport], XA_CARDINAL, 32, PropModeReplace, (unsigned char *)data, 2);
 }
 
 void
@@ -2688,7 +2888,7 @@ swallow(Client *p, Client *c)
 	c->icon = icon;
 	int icw = p->icw;
 	p->icw = c->icw;
-	c->icw = icw;
+	c->ich = icw;
 	int ich = p->ich;
 	p->ich = c->ich;
 	c->ich = ich;
@@ -2731,12 +2931,60 @@ spawn(const Arg *arg)
 }
 
 void
+spawnbar()
+{
+	if (*altbarcmd)
+		system(altbarcmd);
+}
+
+void
 tag(const Arg *arg)
 {
-	if (selmon->sel && arg->ui & TAGMASK) {
-		selmon->sel->tags = arg->ui & TAGMASK;
-		view(arg);
-	}
+    unsigned int montags;
+    Monitor *targetmon = NULL;
+    Client *c = selmon->sel;
+    
+    if (!c || !(arg->ui & TAGMASK))
+        return;
+        
+    updatemonitorcount();
+    montags = getmontagmask(selmon->num);
+    
+    /* Check if the tag belongs to current monitor */
+    if (arg->ui & montags) {
+        /* Tag belongs to current monitor, proceed normally */
+        c->tags = arg->ui & TAGMASK & montags;
+        setclientdesktop(c);  // Add this line
+        view(arg);
+    } else {
+        /* Tag belongs to different monitor, find which one */
+        Monitor *m;
+        for (m = mons; m; m = m->next) {
+            unsigned int mmask = getmontagmask(m->num);
+            if (arg->ui & mmask) {
+                targetmon = m;
+                break;
+            }
+        }
+        
+        if (targetmon) {
+            /* Move window to target monitor */
+            sendmon(c, targetmon);
+            /* The sendmon function already handles tag assignment */
+            
+            /* Switch focus to target monitor and view the tag */
+            if (selmon != targetmon) {
+                unfocus(selmon->sel, 0);
+                selmon = targetmon;
+            }
+            /* Ensure the moved window gets the correct tag */
+            if (targetmon->sel) {
+                targetmon->sel->tags = arg->ui & TAGMASK & getmontagmask(targetmon->num);
+                setclientdesktop(targetmon->sel);  // Add this line
+            }
+            view(arg);
+        }
+    }
 }
 
 void
@@ -2843,9 +3091,19 @@ tile(Monitor *m)
 void
 togglebar(const Arg *arg)
 {
+	/**
+	 * Polybar tray does not raise maprequest event. It must be manually scanned
+	 * for. Scanning it too early while the tray is being populated would give
+	 * wrong dimensions.
+	 */
+	if (usealtbar && !selmon->traywin)
+		scantray();
+
 	selmon->showbar = selmon->pertag->showbars[selmon->pertag->curtag] = !selmon->showbar;
 	updatebarpos(selmon);
 	resizebarwin(selmon);
+	if (usealtbar)
+		XMoveResizeWindow(dpy, selmon->traywin, selmon->tx, selmon->by, selmon->tw, selmon->bh);
 	if (showsystray) {
 		XWindowChanges wc;
 		if (!selmon->showbar)
@@ -2897,29 +3155,44 @@ togglefloating(const Arg *arg)
 void
 toggletag(const Arg *arg)
 {
-	unsigned int newtags;
+    unsigned int newtags;
+    unsigned int montags;
 
-	if (!selmon->sel)
-		return;
-	newtags = selmon->sel->tags ^ (arg->ui & TAGMASK);
-	if (newtags) {
-		selmon->sel->tags = newtags;
-		arrange(selmon);
-		focus(NULL);
-		warp(NULL);
-	}
+    if (!selmon->sel)
+        return;
+        
+    updatemonitorcount();
+    montags = getmontagmask(selmon->num);
+    
+    /* Only allow toggling tags that belong to this monitor */
+    newtags = selmon->sel->tags ^ (arg->ui & TAGMASK & montags);
+    if (newtags && (newtags & montags)) {
+        selmon->sel->tags = newtags & montags;
+        setclientdesktop(selmon->sel);  // Add this line
+        arrange(selmon);
+        focus(NULL);
+        warp(NULL);
+    }
+    updatecurrentdesktop();
 }
 
 void
 toggleview(const Arg *arg)
 {
-	unsigned int newtagset = selmon->tagset[selmon->seltags] ^ (arg->ui & TAGMASK);;
+	unsigned int newtagset;
+	unsigned int montags;
 	int i;
+
+	updatemonitorcount();
+	montags = getmontagmask(selmon->num);
+	
+	/* Only allow toggling tags that belong to this monitor */
+	newtagset = selmon->tagset[selmon->seltags] ^ (arg->ui & TAGMASK & montags);
 
 	if (newtagset) {
 		selmon->tagset[selmon->seltags] = newtagset;
 
-		if (newtagset == ~0)
+		if (newtagset == montags)
 		{
 			selmon->pertag->curtag = 0;
 		}
@@ -2938,6 +3211,7 @@ toggleview(const Arg *arg)
 		arrange(selmon);
 		focus(NULL);
 	}
+	updatecurrentdesktop();
 }
 
 void
@@ -3019,9 +3293,40 @@ unmanage(Client *c, int destroyed)
 }
 
 void
+unmanagealtbar(Window w)
+{
+	Monitor *m = wintomon(w);
+
+	if (!m)
+		return;
+
+	m->barwin = 0;
+	m->by = 0;
+	m->bh = 0;
+	updatebarpos(m);
+	arrange(m);
+}
+
+void
+unmanagetray(Window w)
+{
+	Monitor *m = wintomon(w);
+
+	if (!m)
+		return;
+
+	m->traywin = 0;
+	m->tx = 0;
+	m->tw = 0;
+	updatebarpos(m);
+	arrange(m);
+}
+
+void
 unmapnotify(XEvent *e)
 {
 	Client *c;
+	Monitor *m;
 	XUnmapEvent *ev = &e->xunmap;
 
 	if ((c = wintoclient(ev->window))) {
@@ -3034,7 +3339,10 @@ unmapnotify(XEvent *e)
 		 * _not_ destroy them. We map those windows back */
 		XMapRaised(dpy, c->win);
 		updatesystray();
-	}
+	} else if (usealtbar && (m = wintomon(ev->window)) && m->barwin == ev->window)
+		unmanagealtbar(ev->window);
+	else if (usealtbar && m->traywin == ev->window)
+		unmanagetray(ev->window);
 }
 
 void
@@ -3070,6 +3378,9 @@ unswallow(Client *c)
 void
 updatebars(void)
 {
+	if (usealtbar)
+		return;
+
 	unsigned int w;
 	Monitor *m;
 	XSetWindowAttributes wa = {
@@ -3101,11 +3412,11 @@ updatebarpos(Monitor *m)
 	m->wy = m->my;
 	m->wh = m->mh;
 	if (m->showbar) {
-		m->wh -= bh;
+		m->wh -= m->bh;
 		m->by = m->topbar ? m->wy : m->wy + m->wh;
-		m->wy = m->topbar ? m->wy + bh : m->wy;
+		m->wy = m->topbar ? m->wy + m->bh : m->wy;
 	} else
-		m->by = -bh;
+		m->by = -m->bh;
 }
 
 void
@@ -3120,6 +3431,21 @@ updateclientlist(void)
 			XChangeProperty(dpy, root, netatom[NetClientList],
 				XA_WINDOW, 32, PropModeAppend,
 				(unsigned char *) &(c->win), 1);
+}
+
+void updatecurrentdesktop(void){
+	long data[] = { 0 };
+	int i;
+	unsigned int tagset = selmon->tagset[selmon->seltags];
+	
+	/* Find the first active tag */
+	for (i = 0; i < TAGSLENGTH && !(tagset & 1 << i); i++);
+	
+	if (i < TAGSLENGTH) {
+		data[0] = i;
+	}
+	
+	XChangeProperty(dpy, root, netatom[NetCurrentDesktop], XA_CARDINAL, 32, PropModeReplace, (unsigned char *)data, 1);
 }
 
 #if SHOWWINICON
@@ -3271,7 +3597,7 @@ void
 updatestatus(void)
 {
 	if (!gettextprop(root, XA_WM_NAME, stext, sizeof(stext))) {
-		strcpy(stext, "dwm-ujstor:"VERSION);
+		strcpy(stext, "dwm-titus:"VERSION);
 		statusw = TEXTW(stext) - lrpad + 2;
 	} else {
 		char *text, *s, ch;
@@ -3284,6 +3610,7 @@ updatestatus(void)
 				statusw += TEXTW(text) - lrpad;
 				*s = ch;
 				text = s + 1;
+				statussig = ch;
 			}
 		}
 		statusw += TEXTW(text) - lrpad + 2;
@@ -3445,12 +3772,52 @@ view(const Arg *arg)
 {
 	int i;
 	unsigned int tmptag;
+	unsigned int montags;
+	Monitor *targetmon = NULL;
+	
+	updatemonitorcount();
+	
+	/* If arg->ui contains tags, check if they belong to current monitor */
+	if (arg->ui & TAGMASK) {
+		montags = getmontagmask(selmon->num);
+		
+		/* If requested tags don't belong to current monitor, find the right monitor */
+		if (!(arg->ui & montags)) {
+			Monitor *m;
+			for (m = mons; m; m = m->next) {
+				unsigned int mmask = getmontagmask(m->num);
+				if (arg->ui & mmask) {
+					targetmon = m;
+					break;
+				}
+			}
+			
+			/* If we found a target monitor, switch to it and continue */
+			if (targetmon && targetmon != selmon) {
+				if (selmon->sel)
+					unfocus(selmon->sel, 0);
+				selmon = targetmon;
+				focus(NULL);
+				/* Warp cursor to the target monitor */
+				XWarpPointer(dpy, None, root, 0, 0, 0, 0, 
+					selmon->wx + selmon->ww/2, selmon->wy + selmon->wh/2);
+				montags = getmontagmask(selmon->num);
+			} else {
+				/* No valid monitor found for this tag, return */
+				return;
+			}
+		}
+	} else {
+		montags = getmontagmask(selmon->num);
+	}
 
+	/* Only allow viewing tags that belong to this monitor (now current after potential switch) */
 	if ((arg->ui & TAGMASK) == selmon->tagset[selmon->seltags])
 		return;
+
 	selmon->seltags ^= 1; /* toggle sel tagset */
 	if (arg->ui & TAGMASK) {
-		selmon->tagset[selmon->seltags] = arg->ui & TAGMASK;
+		selmon->tagset[selmon->seltags] = arg->ui & TAGMASK & montags;
 		selmon->pertag->prevtag = selmon->pertag->curtag;
 
 		if (arg->ui == ~0)
@@ -3484,6 +3851,7 @@ view(const Arg *arg)
 		    break;
 		}
 	}
+	updatecurrentdesktop();
 }
 
 void
@@ -3589,11 +3957,33 @@ wintomon(Window w)
 	if (w == root && getrootptr(&x, &y))
 		return recttomon(x, y, 1, 1);
 	for (m = mons; m; m = m->next)
-		if (w == m->barwin)
+		if (w == m->barwin || w == m->traywin)
 			return m;
 	if ((c = wintoclient(w)))
 		return c->mon;
 	return selmon;
+}
+
+int
+wmclasscontains(Window win, const char *class, const char *name)
+{
+	XClassHint ch = { NULL, NULL };
+	int res = 1;
+
+	if (XGetClassHint(dpy, win, &ch)) {
+		if (ch.res_name && strstr(ch.res_name, name) == NULL)
+			res = 0;
+		if (ch.res_class && strstr(ch.res_class, class) == NULL)
+			res = 0;
+	} else
+		res = 0;
+
+	if (ch.res_class)
+		XFree(ch.res_class);
+	if (ch.res_name)
+		XFree(ch.res_name);
+
+	return res;
 }
 
 /* There's no way to check accesses to destroyed windows, thus those cases are
@@ -3658,6 +4048,106 @@ zoom(const Arg *arg)
 	if (c == nexttiled(selmon->clients) && !(c = nexttiled(c->next)))
 		return;
 	pop(c);
+}
+
+/* Monitor-specific tag management functions */
+void
+updatemonitorcount(void)
+{
+	Monitor *m;
+	int count = 0;
+	
+	for (m = mons; m; m = m->next)
+		count++;
+	
+	monitorcount = count > 0 ? count : 1;
+}
+
+unsigned int
+getmontagmask(int monnum)
+{
+	int tagspermon, start, end, i;
+	unsigned int mask = 0;
+	
+	/* Bounds checking */
+	if (monnum < 0 || monitorcount <= 0)
+		return TAGMASK;
+		
+	if (monitorcount <= 1)
+		return TAGMASK;
+		
+	tagspermon = LENGTH(tags) / monitorcount;
+	if (tagspermon == 0) tagspermon = 1;
+	
+	start = monnum * tagspermon;
+	end = start + tagspermon;
+	
+	/* Handle remainder tags for last monitor */
+	if (monnum == monitorcount - 1)
+		end = LENGTH(tags);
+	
+	/* Ensure we don't go beyond available tags */
+	if (start >= LENGTH(tags)) start = LENGTH(tags) - 1;
+	if (end > LENGTH(tags)) end = LENGTH(tags);
+	if (start >= end) {
+		/* Fallback for edge cases */
+		return 1 << (monnum % LENGTH(tags));
+	}
+	
+	for (i = start; i < end; i++)
+		mask |= 1 << i;
+	
+	/* Ensure we always return a valid mask */
+	return mask ? mask : (1 << (monnum % LENGTH(tags)));
+}
+
+int
+getmonitorforselectedtag(void)
+{
+	unsigned int curtag = selmon->tagset[selmon->seltags];
+	int tagspermon, i;
+	
+	if (monitorcount <= 1 || !curtag)
+		return 0;
+		
+	tagspermon = LENGTH(tags) / monitorcount;
+	if (tagspermon == 0) tagspermon = 1;
+	
+	/* Find which tag bit is set */
+	for (i = 0; i < LENGTH(tags); i++) {
+		if (curtag & (1 << i)) {
+			return i / tagspermon >= monitorcount ? monitorcount - 1 : i / tagspermon;
+		}
+	}
+	
+	return 0;
+}
+
+/* Initialize monitor-specific tags after all monitors are created */
+void
+initmonitortags(void)
+{
+	Monitor *m;
+	unsigned int montags;
+	int i;
+	
+	updatemonitorcount();
+	
+	for (m = mons; m; m = m->next) {
+		montags = getmontagmask(m->num);
+		
+		/* Set default tagset to first valid tag for this monitor */
+		for (i = 0; i < LENGTH(tags); i++) {
+			if (montags & (1 << i)) {
+				m->tagset[0] = m->tagset[1] = 1 << i;
+				break;
+			}
+		}
+		
+		/* Fallback to first tag if calculation fails */
+		if (!m->tagset[0])
+			m->tagset[0] = m->tagset[1] = 1;
+	}
 }
 
 int
