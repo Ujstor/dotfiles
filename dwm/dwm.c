@@ -4066,39 +4066,8 @@ updatemonitorcount(void)
 unsigned int
 getmontagmask(int monnum)
 {
-	int tagspermon, start, end, i;
-	unsigned int mask = 0;
-	
-	/* Bounds checking */
-	if (monnum < 0 || monitorcount <= 0)
-		return TAGMASK;
-		
-	if (monitorcount <= 1)
-		return TAGMASK;
-		
-	tagspermon = LENGTH(tags) / monitorcount;
-	if (tagspermon == 0) tagspermon = 1;
-	
-	start = monnum * tagspermon;
-	end = start + tagspermon;
-	
-	/* Handle remainder tags for last monitor */
-	if (monnum == monitorcount - 1)
-		end = LENGTH(tags);
-	
-	/* Ensure we don't go beyond available tags */
-	if (start >= LENGTH(tags)) start = LENGTH(tags) - 1;
-	if (end > LENGTH(tags)) end = LENGTH(tags);
-	if (start >= end) {
-		/* Fallback for edge cases */
-		return 1 << (monnum % LENGTH(tags));
-	}
-	
-	for (i = start; i < end; i++)
-		mask |= 1 << i;
-	
-	/* Ensure we always return a valid mask */
-	return mask ? mask : (1 << (monnum % LENGTH(tags)));
+	/* Allow all tags on all monitors - each monitor has independent 1-9 workspaces */
+	return TAGMASK;
 }
 
 int
