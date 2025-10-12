@@ -2,8 +2,9 @@
 
 THEME="minimal"
 
-# Kill all existing polybar instances
+# Kill all existing polybar instances and focus monitor script
 killall polybar 2>/dev/null
+killall focus-monitor.sh 2>/dev/null
 while pgrep -u $UID -x polybar >/dev/null; do sleep 1; done
 
 CONFIG_FILE="$HOME/dwm/polybar/themes/$THEME/config.ini"
@@ -43,6 +44,10 @@ if command -v xrandr > /dev/null 2>&1; then
                 echo "Launched polybar WITHOUT tray on $monitor"
             fi
         done
+
+        # Start the focus monitor indicator script
+        "$HOME/dwm/polybar/scripts/focus-monitor.sh" &
+        echo "Started focus monitor indicator"
     fi
 else
     # Fallback: launch main bar if xrandr is not available
