@@ -135,10 +135,10 @@ static Key keys[] = {
     { MODKEY|ShiftMask,             XK_m,                      togglefloating, {0} },
     { MODKEY|ShiftMask,             XK_y,                      togglefakefullscreen, {0} },
     { MODKEY,                       XK_0,                      view,           {.ui = ~0 } },
-    { MODKEY,                       XK_comma,                  focusmon,       {.i = -1 } },
-    { MODKEY,                       XK_period,                 focusmon,       {.i = +1 } },
-    { MODKEY|ShiftMask,             XK_comma,                  tagmon,         {.i = -1 } },
-    { MODKEY|ShiftMask,             XK_period,                 tagmon,         {.i = +1 } },
+    { MODKEY,                       XK_comma,                  focusmon,       {.i = +1 } },
+    { MODKEY,                       XK_period,                 focusmon,       {.i = -1 } },
+    { MODKEY|ShiftMask,             XK_comma,                  tagmon,         {.i = +1 } },
+    { MODKEY|ShiftMask,             XK_period,                 tagmon,         {.i = -1 } },
     TAGKEYS(                        XK_1,                      0)
     TAGKEYS(                        XK_2,                      1)
     TAGKEYS(                        XK_3,                      2)

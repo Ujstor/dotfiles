@@ -7,7 +7,6 @@ dwm_old/
 get_helm.sh
 
 # binaries
-dwm
 
 # Patch Fail
 *.rej
