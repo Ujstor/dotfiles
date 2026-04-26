@@ -52,3 +52,8 @@ xrandr --output DP-2 --auto --mode 2560x1440 --pos 0x0 \
        --output HDMI-0 --auto --mode 2560x1440 --pos 2560x0 \
        --output DP-0 --auto --mode 2560x1440 --pos 5120x0 --primary >> $LOGFILE 2>&1
 echo "xrandr exit code: $?" >> $LOGFILE
+
+# Disable screensaver and monitor power management (keep monitors always on)
+xset s off          # Disable screensaver
+xset s noblank      # Don't blank the screen
+xset -dpms          # Disable DPMS (Display Power Management Signaling)

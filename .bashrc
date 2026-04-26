@@ -6,6 +6,7 @@ iatest=$(expr index "$-" i)
 #######################################################
 
 alias fastfetch='fastfetch -c ~/config.jsonc'
+export PATH="$HOME/.local/bin:$PATH" 
 
 # if [ -f /usr/bin/fastfetch ]; then
 # 	fastfetch -c ~/config.jsonc
@@ -757,7 +758,11 @@ alias tf='terraform'
 source <(k3d completion bash)
 source <(go-blueprint completion bash)
 source <(k8s-templater completion bash)
+source <(gw-templater completion bash)
 source <(k9s completion bash)
+source <(gitops-core-templater completion bash)
+source <(infra-templater completion bash)
+
 alias t='terraform'
 complete -C /usr/bin/terraform t
 
@@ -776,3 +781,30 @@ export PATH="$HOME/.govm/shim:$PATH"
 export PATH=/home/ujstor/.opencode/bin:$PATH
 export PATH="$HOME/.govm/shim:$PATH"
 export PATH="/home/ujstor/.govm/shim:$PATH"
+. "$HOME/.cargo/env"
+export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+
+# Android SDK
+export ANDROID_HOME=$HOME/Android/Sdk
+export ANDROID_SDK_ROOT=$HOME/Android/Sdk
+export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin
+export PATH=$PATH:$ANDROID_HOME/platform-tools
+export PATH=$PATH:$ANDROID_HOME/emulator
+export PATH=$PATH:$ANDROID_HOME/build-tools/34.0.0
+export ANDROID_AVD_HOME=$HOME/.config/.android/avd
+
+# >>> conda initialize >>>
+# !! Contents within this block are managed by 'conda init' !!
+__conda_setup="$('/home/ujstor/miniconda3/bin/conda' 'shell.bash' 'hook' 2> /dev/null)"
+if [ $? -eq 0 ]; then
+    eval "$__conda_setup"
+else
+    if [ -f "/home/ujstor/miniconda3/etc/profile.d/conda.sh" ]; then
+        . "/home/ujstor/miniconda3/etc/profile.d/conda.sh"
+    else
+        export PATH="/home/ujstor/miniconda3/bin:$PATH"
+    fi
+fi
+unset __conda_setup
+# <<< conda initialize <<<
+

@@ -43,6 +43,10 @@ xrandr --output DP-2 --auto --mode 2560x1440 --pos 0x0 \
        --output DP-0 --auto --mode 2560x1440 --pos 5120x0 --primary >> $LOGFILE 2>&1
 echo "xrandr exit code: $?" >> $LOGFILE
 
+# Disable screen saver and power management
+xset s off
+xset -dpms
+xset s noblank
 
 # Start window manager
 exec dwm
